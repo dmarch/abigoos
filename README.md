@@ -16,7 +16,8 @@ This repository provides the R code that accompanies the article "Monitoring the
 * /overlap/ov_tel.R
 * /overlap/compare_eoo_tel.R
 * /common: utils.R, oceanmask.R, zonal.R
-* /figs: figures
+* /plots: R scripts for generating the figures
+* /output: output files. (figures and nc)
 
 
 ## Derived data products

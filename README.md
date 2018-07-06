@@ -16,3 +16,26 @@ This repository provides the R code that accompanies the article "Monitoring the
 * /overlap/ov_tel.R
 * /overlap/compare_eoo_tel.R
 * /common: utils.R, oceanmask.R, zonal.R
+* /figs: figures
+
+
+## Derived data products
+* Ocean mask
+* List of animal-borne platform species (with results from analysis). 
+* Argo gaps (unsampled and undersampled) per year. (1nc)
+* EOO maps per species (1nc) => not sure if could be redistributed...
+* Telemetry maps per species (1nc) => not sure if could be registributed...
+* Overlap maps with EOO per species (1nc)
+* Overlap maps with telemetry per species (1nc)
+
+
+## Third-party data (/ext folder)
+* Bathymetry
+* Argo profiles from GDAC
+* MEOP-CTD database
+* OBIS-SEAMAP
+* IUCN spatial data
+* Birdlife
+* SWOT
+* SeaVox Salt and Fresh Water Body Gazetter (v16 2015)
+* Land mask, Natural Earth

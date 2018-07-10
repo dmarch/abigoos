@@ -8,7 +8,7 @@ This repository provides the R code that accompanies the article "Monitoring the
 ## Structure of the repository
 
 * config.R: Script to set your data paths
-* /argo: folder with scripts to process Argo data
+* /argo: folder with scripts to process Argo data (density, undersampled, hotspot, eez, gradients)
 * /abp: folder with scripts to process animal-borne platform data
 * /eoo: folder with scripts to process extents of occurrence of species
 * /overlap

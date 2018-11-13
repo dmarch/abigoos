@@ -1,7 +1,7 @@
 # abigoos
 Integraton of Animal-Borne Instruments into Global Ocean Observing Systems
 
-This repository provides the R code that accompanies the article "Monitoring the oceans with animal-borne platforms to complement global ocean observing systems"
+This repository provides the R code that accompanies the article "Biologging in under-sampled regions of the global ocean"
 
 
 

@@ -8,13 +8,13 @@
 
 
 ## Data folder
-hd <- "H:/abigoos/"
+hd <- "H:/data/"
 
 
-# Input data ----------------
+# External data ----------------
 
 # gebco bathymetry
-gebconc <- paste0(hd, "input/gebco/RN-4015_1510486680263/GEBCO_2014_2D.nc")
+gebconc <- paste0(hd, "gebco/RN-4015_1510486680263/GEBCO_2014_2D.nc")
 
 # natural earth land mask
-neshp <- paste0(hd, "input/natural_earth/ne_10m_land/ne_10m_land.shp")
+neshp <- paste0(hd, "natural_earth/ne_10m_land/ne_10m_land.shp")

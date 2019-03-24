@@ -1,17 +1,25 @@
 # abigoos
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 This repository provides the R code that accompanies the article "Towards the integration of animal-borne instruments into global ocean observing systems"
 
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+### Requirements
+* R-studio with R >= 3.1.0
+* Packages:
+
+## Installation
+
+The R code can be downloaded from the following [link](https://github.com/dmarch/abigoos/archive/master.zip). Additionaly, check out this guideline at the [Rstudio website](https://support.rstudio.com/hc/en-us/articles/200532077-Version-Control-with-Git-and-SVN) for installing Git on your computer and creating a new project.
 
 
-## Instalation
+## Getting started
 
-There are X files that should be modfied before running the scripts.  
+There several steps that need to be conducted before running the scripts. 
 
-* Download third-party datasets (see bellow)
-* data_paths.R: 
+* Download raw data from third-party providers (see bellow)
+* Edit the paths to those datasets
 
 
 ## Workflow

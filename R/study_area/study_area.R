@@ -22,10 +22,6 @@
 ## Set script parameters
 exclude_area <- 0.10 # Exclude cells containing <10% ocean area
 
-## Set paths for generated files
-temp_bathy <- paste(temp_dir,"bathy_1d_moll.nc", sep="/")
-temp_mask <- paste(temp_dir,"mask_1d_moll.nc", sep="/")
-temp_land <- "land_moll"
 
 ## Load libraries
 library(raster)

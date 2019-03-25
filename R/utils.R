@@ -260,7 +260,9 @@ plotrasterDis <- function(r, land, box, palette = 'Spectral', ggtitle = NULL,
     # Set them options
     theme(legend.position = legend.position, #"none", "bottom"
           plot.title = element_text(hjust = 0.5),
-          plot.margin = grid::unit(c(0,0,0,0), "mm"))   
+          plot.margin = grid::unit(c(0,0,0,0), "mm"),
+          legend.title=element_text(size=14), 
+          legend.text=element_text(size=12))   
   
   # Set title if not null
   if (!is.null(ggtitle))  p <- p + ggtitle(ggtitle)
@@ -393,7 +395,7 @@ unsamp <- function(r, mask){
   
   ## Extract unsampled cells (no profiles)
   runder[is.na(r)]<-1  # set cells wihtout profiles equal to 1
-  runsamp <- runder * mask.prj  # filter out cells that are not ocean
+  runsamp <- runder * mask  # filter out cells that are not ocean
   return(runsamp)
 }
 #----------------------------------------------------------------------
@@ -419,7 +421,7 @@ unsamp2 <- function(r, mask){
   
   ## Extract unsampled cells (no profiles)
   runder[is.na(r)]<-2  # set cells wihtout profiles equal to 2
-  runsamp <- runder * mask.prj  # filter out cells that are not ocean
+  runsamp <- runder * mask  # filter out cells that are not ocean
   return(runsamp)
 }
 #----------------------------------------------------------------------

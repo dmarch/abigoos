@@ -7,6 +7,8 @@
 library(raster)
 library(ggplot2)
 library(stringr)
+library(reshape2)
+library(maptools)
 source("R/utils.R")
 source("R/data_paths.R")
 
@@ -17,7 +19,13 @@ box <- bb(xmin = -180, xmax = 180, ymin = -90, ymax = 90, crs=PROJ)
 land.prj <- readOGR(temp_dir, temp_land)  # landmask
 mask <- raster(temp_mask) # oceanmask
 argo <- stack(argo_count) # argo counts per year
+unders.argo <- stack(argo_gaps)
+persistence <- raster(argo_gap_persistence)
+coldspots <- raster(argo_coldspots)
+coldspots_shp <- readShapePoly(argo_coldspots_shp)
 
+## Set years to process
+years <- 2005:2016
 
 #------------------------------------------------
 # Plot 1: Argo density for the 2005-2016 period
@@ -34,7 +42,7 @@ p <- plotraster(r = log10(argoDens), land = land.prj, box = box,
                 legendTitle = expression(log[10]~(profiles / km^2)))
 
 # Save as png file
-p_png <- paste(fig_dir,"argo","argo_map_all.png", sep="/")
+p_png <- paste(fig_dir,"argo","argo_density_all.png", sep="/")
 ggsave(p_png, p, width=25, height=14, units="cm", dpi=300)
 
 
@@ -44,7 +52,6 @@ ggsave(p_png, p, width=25, height=14, units="cm", dpi=300)
 
 # Calculate density (profiles / km2)
 argoDensY <- argo / ((res(argo)[1]/1000)*(res(argo)[2]/1000))  # divide by km2
-years <- as.numeric(str_extract(names(argoDensY), "\\d{4}"))
 
 # Fix legend limits
 vmin <- log10(min(minValue(argoDensY)))
@@ -67,7 +74,7 @@ for (i in 1:nlayers(argoDensY)){
                   legendTitle = expression(log[10]~(profiles / km^2)))
   
   # Save as png file
-  p_png <- paste0(fig_dir,"/argo/","argo_map_",year, ".png")
+  p_png <- paste0(fig_dir,"/argo/","argo_density_",year, ".png")
   ggsave(p_png, p, width=25, height=14, units="cm", dpi=300)
 }
 
@@ -97,14 +104,139 @@ p_png <- paste(fig_dir,"argo","cv_argo.png", sep="/")
 ggsave(p_png, p, width=25, height=14, units="cm", dpi=300)
 
 
+
 #------------------------------------------------
-# Plot 4: Gap persistence
+# Plot 4: Surface of sampling gaps by type
 #------------------------------------------------
+
+## Calculate % of surface  by unsampled and undersampled.
+df <- data.frame(year=years, unsampled=NA, undersampled=NA)
+
+## Loop for each year
+for (i in 1:nlayers(unders.argo)){
+
+  ## Extract raster
+  r <- subset(unders.argo,i)
+
+  ## Get number of cells by type
+  df$undersampled[i] <- table(values(r))[1]
+  df$unsampled[i] <- table(values(r))[2]
+}
+
+## Calculate the sum between unsampled and undersampled
+df$gap <- rowSums(df[,c(2,3)])
+
+## Temporal plot
+dfm <- melt(df, id.vars="year", measure.vars=c("unsampled", "undersampled"))
+
+## stacked area plot better represents proportion and total gaps surface
+ylab <- expression(Argo~surface~gap~(x10^4~km^2))
+fill <- c("#40b8d0", "#b2d183")
+p <- ggplot(dfm, aes(x = year, y = value, fill = variable)) + 
+  geom_area(aes(fill=variable), position = position_stack(reverse = T))+ 
+  scale_x_continuous(breaks=seq(2005,2016,1)) +
+  scale_fill_manual(values=fill, labels=c("Un-sampled", "Under-sampled")) +
+  labs(x = "Year", y = ylab) +
+  theme_bw() + 
+  theme(legend.position="right", panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank())
+
+# Save as png file
+p_png <- paste(fig_dir,"argo","unsamp_undersamp_area.png", sep="/")
+ggsave(p_png, p, width=25, height=14, units="cm", dpi=300)
 
 
 
 #------------------------------------------------
-# Plot 5: Coldspots
+# Plot 5: Map of sampling gaps
 #------------------------------------------------
+
+unders.argo <- setZ (unders.argo, years)
+
+## Loop for each year
+for (i in 1:nlayers(unders.argo)){
+
+  ## Extract raster
+  r <- subset(unders.argo,i)
+  year <- getZ(unders.argo)[i]
+  
+  ## Make plot
+  p <- plotrasterDis(r = r, land = land.prj, box = box,
+                     colors = c("1" = "#b2d183", "2" = "#40b8d0"),
+                     labels = c("Under-sampled", "Un-sampled"),
+                     text = year, text.x = 7000000, text.y = 5000000, text.size = 15,
+                     breaks = 1:2,
+                     legendTitle = "Gap cells", legend.position = "none")
+  
+  
+  p <- p + geom_polygon(data = land.prj, 
+                        aes(long,lat, group = group), 
+                        colour = "grey10", fill = "transparent", size = .25) 
+  
+  # Save as png file
+  p_png <- paste0(fig_dir,"/argo/","argo_gaps_",year, ".png")
+  ggsave(p_png, p, width=25, height=14, units="cm", dpi=300)
+}
+
+
+
+#------------------------------------------------
+# Plot 6: Gap persistence
+#------------------------------------------------
+
+# Reclassify raster to discrete class
+m <- c(-Inf,0.2,1, 0.2,0.4,2, 0.4,0.6,3, 0.6,0.8,4, 0.8,Inf,5)
+pers <- reclassify(persistence, m) 
+pers <- pers * mask
+
+# Create plot
+# Note: change colors for land mask from utils.R
+p <- plotrasterDis(r = pers, land = land.prj, box = box,
+                   colors = c("1" = "#eff3ff", "2" = "#bdd7e7", "3" = "#6baed6", "4" = "#3182bd", "5" = "#08519c"),
+                   labels = c("0-20%", "20-40%", "40-60%", "60-80%", "80-100%"),
+                   breaks = 1:5,
+                   legendTitle = "Gap persistence")
+
+p <- p + geom_polygon(data = land.prj, 
+                      aes(long,lat, group = group), 
+                      colour = "grey10", fill = "transparent", size = .25) 
+
+# Save as png file
+p_png <- paste(fig_dir,"argo","gap_persistency.png", sep="/")
+ggsave(p_png, p, width=25, height=14, units="cm", dpi=300)
+
+
+
+#------------------------------------------------
+# Plot 7: Coldspots
+#------------------------------------------------
+# Problem here...
+
+p <- plotrasterDis(r = coldspots, land = land.prj, box = box,
+                   colors = c("1" = "#08519c"),
+                   breaks = 1, legend.position = "none")
+
+p <- p + geom_polygon(data = coldspots_shp, 
+                      aes(long,lat, group = group), 
+                      colour = "grey10", fill = "transparent", size = .25) 
+
+p <- p + geom_polygon(data = land.prj, 
+                      aes(long,lat, group = group), 
+                      colour = "grey10", fill = "transparent", size = .25) 
+
+# Save as png file
+p_png = paste0(outdir,'fig/hotspot.png')
+ggsave(p_png, p, width=25, height=14, units="cm", dpi=300)
+
+#------------------------------------------------
+# Plot 8: Coldspots per latitude
+#------------------------------------------------
+
+
+#------------------------------------------------
+# Plot 9: Coldspots per bathymetry
+#------------------------------------------------
+
+
 
 

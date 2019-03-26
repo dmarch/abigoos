@@ -20,6 +20,7 @@ library(raster)
 library(lubridate)
 library(dplyr)
 library(rgdal)
+library(maptools)
 source("R/utils.R")
 source("R/data_paths.R")
 
@@ -62,7 +63,7 @@ gaps <- unders.argo/unders.argo
 
 ## Calculate how many time one cell has been considered undersampled from yearly maps
 persistence <- sum(gaps, na.rm=TRUE) / nlayers(gaps)
-presitence <- persistence * mask
+persistence <- persistence * mask
 
 ## Save gap persistence map in netcdf
 writeRaster(persistence, filename=argo_gap_persistence, format="CDF", overwrite=TRUE)
@@ -74,7 +75,7 @@ writeRaster(persistence, filename=argo_gap_persistence, format="CDF", overwrite=
 
 ## Select cells with a gap persistence >80%
 ## Note: this is not the 80% of the distribution
-pers80 <- reclassify(presitence, c(-Inf, 0.8, NA, 0.8, Inf, 1))  # create a ocean mask
+pers80 <- reclassify(persistence, c(-Inf, 0.8, NA, 0.8, Inf, 1))  # create a ocean mask
 
 ## Convert raster to polygons
 pol <- rasterToPolygons(pers80, na.rm=TRUE, dissolve=TRUE)
@@ -90,15 +91,15 @@ polsel <- poldis[poldis$Area_km2 > (100*100*25),]
 eliminated_cells <- 1 - (sum(polsel$Area_km2) / sum(poldis$Area_km2))  # 23.8% cells removed
 
 ## Backtransform to raster
+## Note: check that you use a version of raster package >2.8-14
+## previous version had issues when rasterizing polygon holes.
 rpolsel <- rasterize(polsel, persistence)  # rasterize
 rpolsel <- rpolsel/rpolsel  # set value to 1
 
 ## Summary data
-binsurf(rpolsel)  # 73100000, previously: 80,620,000
-(binsurf(rpolsel) / binsurf(mask)) * 100  # coldspots represents a 19.5%
+binsurf(rpolsel)  # 70,370,000
+(binsurf(rpolsel) / binsurf(mask)) * 100  # coldspots represents a 18.8%
 
 ## Save coldspots map
 writeRaster(rpolsel, filename=argo_coldspots, format="CDF", overwrite=TRUE)  # nc
 writePolyShape(polsel, argo_coldspots_shp)  # shapefile
-
-

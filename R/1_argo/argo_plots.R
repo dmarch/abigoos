@@ -9,6 +9,7 @@ library(ggplot2)
 library(stringr)
 library(reshape2)
 library(maptools)
+library(rgdal)
 source("R/utils.R")
 source("R/data_paths.R")
 
@@ -210,27 +211,59 @@ ggsave(p_png, p, width=25, height=14, units="cm", dpi=300)
 #------------------------------------------------
 # Plot 7: Coldspots
 #------------------------------------------------
-# Problem here...
 
 p <- plotrasterDis(r = coldspots, land = land.prj, box = box,
                    colors = c("1" = "#08519c"),
                    breaks = 1, legend.position = "none")
 
-p <- p + geom_polygon(data = coldspots_shp, 
-                      aes(long,lat, group = group), 
-                      colour = "grey10", fill = "transparent", size = .25) 
-
-p <- p + geom_polygon(data = land.prj, 
-                      aes(long,lat, group = group), 
-                      colour = "grey10", fill = "transparent", size = .25) 
-
 # Save as png file
-p_png = paste0(outdir,'fig/hotspot.png')
+p_png <- paste(fig_dir,"argo","coldspot.png", sep="/")
 ggsave(p_png, p, width=25, height=14, units="cm", dpi=300)
+
 
 #------------------------------------------------
 # Plot 8: Coldspots per latitude
 #------------------------------------------------
+
+## Unsampled data
+zunsamp <- zonalLatitude(coldspots, fun="sum")
+
+## Transform Mollweide coordinates to geographic
+GEO <- "+proj=longlat +ellps=WGS84"
+df <- data.frame(x= 0, y = zunsamp[,"zone"])
+coordinates(df) = ~x+y
+proj4string(df) <- CRS(PROJ)
+df.lonlat <- spTransform(df, CRS=CRS(GEO))
+
+## Reasign values
+zunsamp[,"zone"] <- coordinates(df.lonlat)[,"y"]
+
+
+## Plot
+df <- data.frame(zone=zunsamp[,"zone"], unsamp=zunsamp[,"sum"])
+dfm <- melt(df, id.vars="zone", measure.vars=c("unsamp"))
+colour <- c("red")
+
+ylab = expression(Coldspot~surface~(x10^4~km^2))
+
+p <- ggplot(dfm, aes(x = zone, y = value, colour = variable)) +
+  geom_line(size=1) + 
+  scale_x_continuous(limits=c(-90,90), breaks=seq(-90,90,30)) +
+  scale_y_continuous(breaks=seq(0,180,20), labels = comma) +
+  scale_colour_manual(values=colour, labels=c("Unsamp")) +
+  labs(x = "Latitude", y = ylab) +
+  theme_bw() + 
+  theme(legend.position="none",
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+# Save as png file
+p_png = paste0(outdir,'fig/coldspot_by_latitude.png')
+ggsave(p_png, p, width=13, height=7, units="cm", dpi=300)
+
+
+
+
+
 
 
 #------------------------------------------------

@@ -97,8 +97,8 @@ rpolsel <- rasterize(polsel, persistence)  # rasterize
 rpolsel <- rpolsel/rpolsel  # set value to 1
 
 ## Summary data
-binsurf(rpolsel)  # 70,370,000
-(binsurf(rpolsel) / binsurf(mask)) * 100  # coldspots represents a 18.8%
+binsurf(rpolsel)  # 69,760,000
+(binsurf(rpolsel) / binsurf(mask)) * 100  # coldspots represents a 18.6%
 
 ## Save coldspots map
 writeRaster(rpolsel, filename=argo_coldspots, format="CDF", overwrite=TRUE)  # nc

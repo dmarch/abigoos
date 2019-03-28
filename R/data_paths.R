@@ -62,4 +62,5 @@ argo_gaps <- paste(argo_dir, "argo_gaps.nc", sep="/")
 argo_gap_persistence <- paste(argo_dir, "argo_gap_persistence.nc", sep="/")
 argo_coldspots <- paste(argo_dir, "argo_coldspots.nc", sep="/")
 argo_coldspots_shp <- paste(temp_dir, "argo_coldspots", sep="/")
-
+coldspots_latitude_csv <- paste(temp_dir, "coldspots_latitude.csv", sep="/")
+coldspots_bathymetry_csv <- paste(temp_dir, "coldspots_bathymetry.csv", sep="/")

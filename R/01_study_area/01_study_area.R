@@ -63,17 +63,17 @@ mask[cells] <- NA   # plot(ec,add=TRUE)
 ## Apply mask to bathymetry
 gebco_1d <- gebco_1d * mask
 
+## Create raster base in Mollweide
+r <- raster(xmn=-18040096, xmx=18040096, ymn=-9020048, ymx=9020048, crs=CRS(PROJ),
+            resolution=c(100000, 100000), vals=NA)
+
 ## Transform datasets to Mollweide
-gebco_1d.prj <- projectRaster(gebco_1d, crs=PROJ, res=c(100000, 100000), method="bilinear")
-mask.prj <- projectRaster(mask, crs=PROJ, res=c(100000, 100000), method="ngb")
+gebco_1d.prj <- projectRaster(from=gebco_1d, to=r, method="bilinear")
+mask.prj <- projectRaster(from=mask, to=r, method="ngb")
 land.prj <- spTransform(land, CRSobj = PROJ)  # Tranform data to Mollweide
+
 
 ## Export temporary products
 writeRaster(gebco_1d.prj, temp_bathy, format="CDF", overwrite=TRUE)  # bathymetry
 writeRaster(mask.prj, temp_mask, format="CDF", overwrite=TRUE)  # ocean mask
 writeOGR(land.prj, temp_dir, temp_land, driver="ESRI Shapefile", overwrite_layer=TRUE)  # land reprojected
-
-#writeRaster(gebco_1d, paste(temp_dir,"bathy_1d_lonlat.nc", sep="/"), format="CDF", overwrite=TRUE)
-#writeRaster(mask, paste0(study_area_dir,"GEBCO_mask_1d_lonlat.nc"), format="CDF", overwrite=TRUE)
-## Calculate surface of the ocean layer
-#binsurf(mask.prj) # 374,450,000 km2

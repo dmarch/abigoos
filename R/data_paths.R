@@ -8,7 +8,7 @@
 # Set projections ----------------------------------------------------------
 
 PROJ <- "+proj=moll +ellps=WGS84"  # Project projection, Mollweide
-
+GEO <- "+proj=longlat +ellps=WGS84"
 
 # Set main directories ----------------------------------------------------
 
@@ -36,7 +36,10 @@ ne_shp <- paste(raw_dir, "landmask/ne_10m_land.shp", sep="/")
 # - ftp://ftp.ifremer.fr/ifremer/argo/etc/argo_profile_detailled_index.txt.gz
 argoindex <- paste(raw_dir, "argo/argo_profile_detailled_index.txt", sep="/")
 
-
+# EEZ
+# Exclusive Economic Zones (EEZ) from Marine Regions (http://www.marineregions.org).
+eez_dir <-  paste(raw_dir, "World_EEZ_v9_20161021_LR", sep="/")
+eez_shp <- "eez_lr"
 
 # Output data ----------------------------------------------------------------
 
@@ -64,3 +67,5 @@ argo_coldspots <- paste(argo_dir, "argo_coldspots.nc", sep="/")
 argo_coldspots_shp <- paste(temp_dir, "argo_coldspots", sep="/")
 coldspots_latitude_csv <- paste(temp_dir, "coldspots_latitude.csv", sep="/")
 coldspots_bathymetry_csv <- paste(temp_dir, "coldspots_bathymetry.csv", sep="/")
+coldspots_summary_csv <- paste(argo_dir, "coldspots_summary.csv", sep="/")
+coldspots_eez_csv <- paste(argo_dir, "coldspots_eez.csv", sep="/")

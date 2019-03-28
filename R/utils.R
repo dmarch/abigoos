@@ -10,6 +10,7 @@
 # 
 # bb               Create world bounding box at custom CRS
 # binsurf         Calculate surface of binary map on Equal area projection
+# oceanArea
 # plotraster       Plot raster map
 # plotrasterDis     Plot raster map for discrete values
 # presence         Calculate presence map from quintile map
@@ -106,6 +107,30 @@ oceanArea <- function(ocean_mask, xmin = -180, xmax = 180, ymin = -90, ymax = -9
   return(s)
 }
 #-----------------------------------
+
+#-----------------------------------
+# oceanAreaEEZ
+#-----------------------------------
+oceanAreaEEZ <- function(ocean_mask, eez, xmin = -180, xmax = 180, ymin = -90, ymax = 90, crs=PROJ, crs.geo=GEO){
+  
+  library(raster)
+  source("R/utils.R")
+  
+  box <- bb(xmin, xmax, ymin, ymax, crs)  # create polygon per region
+  m <- rasterize(box, ocean_mask)  # rasterize polygon
+  o <- m * ocean_mask  # extract ocean cells from mask
+  
+  # overlap with eez
+  o_geo <- projectRaster(o, crs=crs.geo, method="ngb")
+  a <- area(o_geo)
+  area <- o_geo * a
+  eezArgo <- extract(area, eez, fun=sum, na.rm=TRUE, sp=TRUE) # calculate the sum of Argo profiles per each EEZ
+  coldspot_area_in_ezz <- sum(eezArgo$layer)
+  
+  return(coldspot_area_in_ezz)
+}
+#-----------------------------------
+
 
 
 

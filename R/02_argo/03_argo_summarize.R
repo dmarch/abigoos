@@ -20,13 +20,7 @@ source("R/data_paths.R")
 coldspots <- raster(argo_coldspots)
 bathy <- raster(temp_bathy)
 mask <- raster(temp_mask)
-
-## Import EEZ
 eez <- readOGR(eez_dir, eez_shp)
-
-
-
-
 
 
 #------------------------------------------------
@@ -142,7 +136,6 @@ for (i in 1:nrow(ocean_regions)){
                                            crs=PROJ)
 }
 
-
 ## Calculate coldspots area per ocean regions
 for (i in 1:nrow(ocean_regions)){
   ocean_regions$coldspot_area_km2[i] <- oceanArea(ocean_mask = coldspots,
@@ -150,7 +143,6 @@ for (i in 1:nrow(ocean_regions)){
                                                ymin = ocean_regions$ymin[i], ymax = ocean_regions$ymax[i],
                                                crs=PROJ)
 }
-
 
 ## Calculate coldspots area within EEZ per ocean regions
 for (i in 1:nrow(ocean_regions)){

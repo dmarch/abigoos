@@ -17,6 +17,13 @@ raw_dir <- "E:/abigoosv2/data/raw"  # raw data folder
 temp_dir <- "E:/abigoosv2/data/temp"  # temporary data folder
 out_dir <- "E:/abigoosv2/data/out" # output data folder
 fig_dir <- "E:/abigoosv2/fig" # output data folder
+auth_dir <- "E:/abigoosv2/auth"
+
+# Set auth credentials ----------------------------------------------------
+library(jsonlite)
+keyfile = paste(auth_dir, "iucn.json", sep="/")  # IUCN API token
+key = fromJSON(keyfile)$key
+
 
 # Raw data ----------------------------------------------------------------
 
@@ -41,6 +48,35 @@ argoindex <- paste(raw_dir, "argo/argo_profile_detailled_index.txt", sep="/")
 eez_dir <-  paste(raw_dir, "World_EEZ_v9_20161021_LR", sep="/")
 eez_shp <- "eez_lr"
 
+# Species lists
+husseyfile <- paste(raw_dir, "species_lists", "Satellite List Locations and Species Info.tsv", sep="/")
+sequeirafile <- paste(raw_dir, "species_lists", "sequeira.csv", sep="/")
+lascellesfile <- paste(raw_dir, "species_lists", "Lascelles_2016_ddi12411-sup-0002-appendixs2.csv", sep="/")
+obisfile <- paste(raw_dir, "species_lists", "download_from_obis_seamap_5a8f4b4646cfa_.csv", sep="/")  # downloaded 23/02/2018
+
+# MEOP
+meop_tags <- paste(raw_dir, "telemetry/meop/MEOP-CTD_2017-11-11/info_tags.csv", sep="/")
+
+
+### Do not edit from here ###
+
+# Temporary data ----------------------------------------------------------------
+
+# study area
+temp_bathy <- paste(temp_dir,"bathy_1d_moll.nc", sep="/")
+temp_mask <- paste(temp_dir,"mask_1d_moll.nc", sep="/")
+temp_land <- "land_moll"
+
+# argo
+argo_coldspots_shp <- paste(temp_dir, "argo_coldspots", sep="/")
+coldspots_latitude_csv <- paste(temp_dir, "coldspots_latitude.csv", sep="/")
+coldspots_bathymetry_csv <- paste(temp_dir, "coldspots_bathymetry.csv", sep="/")
+
+# species lists
+meopfile <- paste(temp_dir, "meopSpeciesList.csv", sep="/")  # See meop_species.R
+spp_list_refs <- paste(temp_dir, "ssp_lists_refs.csv", sep="/")
+
+
 # Output data ----------------------------------------------------------------
 
 ## Set relative paths of the output folders
@@ -54,18 +90,10 @@ telemetry_dir <- paste(out_dir, "telemetry", sep="/")
 
 ## Set paths for generated files
 
-# study area
-temp_bathy <- paste(temp_dir,"bathy_1d_moll.nc", sep="/")
-temp_mask <- paste(temp_dir,"mask_1d_moll.nc", sep="/")
-temp_land <- "land_moll"
-
 # argo
 argo_count <- paste(argo_dir, "argo_count.nc", sep="/")
 argo_gaps <- paste(argo_dir, "argo_gaps.nc", sep="/")
 argo_gap_persistence <- paste(argo_dir, "argo_gap_persistence.nc", sep="/")
 argo_coldspots <- paste(argo_dir, "argo_coldspots.nc", sep="/")
-argo_coldspots_shp <- paste(temp_dir, "argo_coldspots", sep="/")
-coldspots_latitude_csv <- paste(temp_dir, "coldspots_latitude.csv", sep="/")
-coldspots_bathymetry_csv <- paste(temp_dir, "coldspots_bathymetry.csv", sep="/")
 coldspots_summary_csv <- paste(argo_dir, "coldspots_summary.csv", sep="/")
 coldspots_eez_csv <- paste(argo_dir, "coldspots_eez.csv", sep="/")

@@ -74,7 +74,11 @@ coldspots_bathymetry_csv <- paste(temp_dir, "coldspots_bathymetry.csv", sep="/")
 
 # species lists
 meopfile <- paste(temp_dir, "meopSpeciesList.csv", sep="/")  # See meop_species.R
-spp_list_refs <- paste(temp_dir, "ssp_lists_refs.csv", sep="/")
+spp_list_refs <- paste(temp_dir, "spp_list_refs.csv", sep="/")
+spp_list_refs_iucn <- paste(temp_dir, "spp_list_refs_iucn.csv", sep="/")
+spp_list_refs_iucn_fishbase <- paste(temp_dir, "spp_list_refs_iucn_fishbase.csv", sep="/")
+spp_list_refs_iucn_fishbase_eoo <- paste(temp_dir, "spp_list_refs_iucn_fishbase_eoo.csv", sep="/")
+spp_list_group <- paste(temp_dir, "spp_list_group.csv", sep="/")
 
 
 # Output data ----------------------------------------------------------------

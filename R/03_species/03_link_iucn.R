@@ -1,12 +1,14 @@
 #------------------------------------------------------------------------------------------
-# 03_spp_info.R       Get additional information per species from external services
+# 03_link_iucn.R       Link species list with IUCN API
 #------------------------------------------------------------------------------------------
-
-
+#
+# This script combines the species list with IUCN database to incorporate taxonomic information
+# and additional information about each species.
 
 
 ## Load libraries
 library("rredlist")  # Use the IUCN API
+library(dplyr)
 source("R/data_paths.R")
 
 
@@ -22,7 +24,6 @@ taxonomy <- data.frame(taxonid = NA, scientific_name = data$scientific_name, syn
 taxonomy$scientific_name <- as.character(taxonomy$scientific_name)
 
 
-# Loop
 # For each species[i] search taxonomic information
 # If there is no info, search for synomins
 # If there is info or synonim, extract taxonomic groups and IUCN category
@@ -70,12 +71,14 @@ taxonomy$synonim[taxonomy$synonim == "Pusa hispida ssp. botnica"] <- "Pusa hispi
 # Merge with species list
 data <- merge(data, taxonomy, by="scientific_name")
 
-# Remove non-matching species (n=3)
-data <- filter(data, !is.na(class))
+# Remove species not matchin with IUCN (n=3)
+data <- filter(data, !is.na(taxonid))
 
 # Remove duplicates with same taxonid (due to generation of synonim names)
 data <- filter(data, !duplicated(data$taxonid))
 
 # Remove non-marine species
-data <- filter(data, marine_system == TRUE)
-## Now we hold 201 spp
+data <- filter(data, marine_system == TRUE)  # returns 201 spp
+
+## Export table as temporary file
+write.csv(data, spp_list_refs_iucn, row.names=FALSE)

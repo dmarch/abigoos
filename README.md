@@ -8,6 +8,11 @@ This repository provides the R code that accompanies the article "Towards the in
 ### Requirements
 * R-studio with R >= 3.1.0
 * Packages:
+  * Data manipulation: dplyr, lubridate, stringr, reshape2, data.table, foreign, Hmisc
+  * Spatial data: rgdal, maptools, geosphere, rgeos, sp, raster, ncdf4
+  * Plots: ggplot2
+  * API: rfishbase, rredlist, jsonlite
+
 
 ## Installation
 

@@ -87,10 +87,9 @@ spp_list_group <- paste(temp_dir, "spp_list_group.csv", sep="/")
 study_area_dir <- paste(out_dir, "study_area", sep="/")
 argo_dir <- paste(out_dir, "argo", sep="/")
 species_dir <- paste(out_dir, "species", sep="/")
-distribution_ranges_dir <- paste(out_dir, "distribution_ranges", sep="/")
+eoo_dir <- paste(out_dir, "eoo", sep="/")
 telemetry_dir <- paste(out_dir, "telemetry", sep="/")
 overlap_dir <- paste(out_dir, "overlap", sep="/")
-telemetry_dir <- paste(out_dir, "telemetry", sep="/")
 
 ## Set paths for generated files
 

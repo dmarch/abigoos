@@ -55,7 +55,52 @@ lascellesfile <- paste(raw_dir, "species_lists", "Lascelles_2016_ddi12411-sup-00
 obisfile <- paste(raw_dir, "species_lists", "download_from_obis_seamap_5a8f4b4646cfa_.csv", sep="/")  # downloaded 23/02/2018
 
 # MEOP
-meop_tags <- paste(raw_dir, "telemetry/meop/MEOP-CTD_2017-11-11/info_tags.csv", sep="/")
+meop_db <- paste(raw_dir, "telemetry/MEOP-CTD_2017-11-11", sep="/")
+meop_tags <- paste(raw_dir, "telemetry/MEOP-CTD_2017-11-11/info_tags.csv", sep="/")
+meop_names <- paste(raw_dir, "species_lists", "meopNames2scientificNames.csv", sep="/")
+
+# OBIS-SEAMAP
+# Those file is the result of the following query:
+# Taxon: Chelonioidea or each species
+# Data type: Telemetry
+# Layer: Summary
+# Resolution: 0.1 x 0.1 degrees
+# Access date: 16 May 2017 & 16 Nov 2017
+chelo <- paste(raw_dir,
+               "telemetry/obis_seamap",
+               "01deg/obis_seamap_custom_591ad4865c69e_20170516_63302_dist_sp_01deg_csv.csv",
+               sep="/")
+cc <- paste(raw_dir,
+            "telemetry/obis_seamap",
+            "cc/obis_seamap_custom_5a0dd16545a0a_20171116_125843_dist_sp_01deg_csv.csv",
+            sep="/")
+cm <- paste(raw_dir,
+            "telemetry/obis_seamap",
+            "cm/obis_seamap_custom_5a0dd3740bb7e_20171116_130610_dist_sp_01deg_csv.csv",
+            sep="/")
+dc <- paste(raw_dir,
+            "telemetry/obis_seamap",
+            "dc/obis_seamap_custom_5a0dd40beedf1_20171116_130855_dist_sp_01deg_csv.csv",
+            sep="/")
+ei <- paste(raw_dir,
+            "telemetry/obis_seamap",
+            "ei/obis_seamap_custom_5a0dd21fe2020_20171116_130206_dist_sp_01deg_csv.csv",
+            sep="/")
+lk <- paste(raw_dir,
+            "telemetry/obis_seamap",
+            "lk/obis_seamap_custom_5a0dd2ce7f73b_20171116_130347_dist_sp_01deg_csv.csv",
+            sep="/")
+lo <- paste(raw_dir,
+            "telemetry/obis_seamap",
+            "lo/obis_seamap_custom_5a0dd325cbbdc_20171116_130449_dist_sp_01deg_csv.csv",
+            sep="/")
+nd <- paste(raw_dir,
+            "telemetry/obis_seamap",
+            "nd/obis_seamap_custom_5a0dd3bcadd90_20171116_130730_dist_sp_01deg_csv.csv",
+            sep="/")
+
+
+
 
 
 ### Do not edit from here ###

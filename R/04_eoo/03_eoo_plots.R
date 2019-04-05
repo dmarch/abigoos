@@ -13,7 +13,6 @@ library(Hmisc)
 source("R/utils.R")
 source("R/data_paths.R")
 
-
 ## Create world bounding box in Mollweide
 box <- bb(xmin = -180, xmax = 180, ymin = -90, ymax = 90, crs=PROJ)
 

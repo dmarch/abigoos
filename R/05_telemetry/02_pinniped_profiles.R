@@ -85,4 +85,4 @@ na_pin <- filter(pin, !scientific_name %in% profdf$scientific_name)
 
 ## Export table
 outfile <- paste0(temp_dir, "/meop_profiles.csv")
-write.table(profdf, outfile, sep=";", dec=",", row.names=FALSE)
+write.csv(profdf, outfile, row.names=FALSE)

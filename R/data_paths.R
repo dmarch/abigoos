@@ -54,6 +54,12 @@ sequeirafile <- paste(raw_dir, "species_lists", "sequeira.csv", sep="/")
 lascellesfile <- paste(raw_dir, "species_lists", "Lascelles_2016_ddi12411-sup-0002-appendixs2.csv", sep="/")
 obisfile <- paste(raw_dir, "species_lists", "download_from_obis_seamap_5a8f4b4646cfa_.csv", sep="/")  # downloaded 23/02/2018
 
+# Distribution ranges
+iucn_shp <- paste(raw_dir, "distribution_ranges", "iucn", sep="/")
+birdlife_shp <- paste(raw_dir, "distribution_ranges", "birdlife", sep="/")
+swot_shp <- paste(raw_dir, "distribution_ranges", "swot_rmu_21071", sep="/")
+
+
 # MEOP
 meop_db <- paste(raw_dir, "telemetry/MEOP-CTD_2017-11-11", sep="/")
 meop_tags <- paste(raw_dir, "telemetry/MEOP-CTD_2017-11-11/info_tags.csv", sep="/")
@@ -124,6 +130,11 @@ spp_list_refs_iucn <- paste(temp_dir, "spp_list_refs_iucn.csv", sep="/")
 spp_list_refs_iucn_fishbase <- paste(temp_dir, "spp_list_refs_iucn_fishbase.csv", sep="/")
 spp_list_refs_iucn_fishbase_eoo <- paste(temp_dir, "spp_list_refs_iucn_fishbase_eoo.csv", sep="/")
 spp_list_group <- paste(temp_dir, "spp_list_group.csv", sep="/")
+
+# rasterized maps
+eoo_tempdir <- paste(temp_dir, "eoo", sep="/")
+
+
 
 
 # Output data ----------------------------------------------------------------

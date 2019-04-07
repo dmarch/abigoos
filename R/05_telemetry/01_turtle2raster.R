@@ -23,7 +23,7 @@
 #
 #
 # Outputs:
-# - Multiband raster with presence/absence of telemetry observations per species
+# - Raster with presence/absence of telemetry observations per species
 # - Single band raster with density of telemetry obbservations for all sea turtle species
 
 

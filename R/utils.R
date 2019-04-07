@@ -11,6 +11,8 @@
 # bb               Create world bounding box at custom CRS
 # binsurf         Calculate surface of binary map on Equal area projection
 # oceanArea
+# oceanAreaEEZ
+# overlap       Overlap between species range (a) and Argo coldspots (b)
 # plotraster       Plot raster map
 # plotrasterDis     Plot raster map for discrete values
 # presence         Calculate presence map from quintile map
@@ -131,6 +133,39 @@ oceanAreaEEZ <- function(ocean_mask, eez, xmin = -180, xmax = 180, ymin = -90, y
 }
 #-----------------------------------
 
+#------------------------------------------------------------------------------------
+# overlap       Overlap between species range (a) and Argo coldspots (b)
+#------------------------------------------------------------------------------------
+overlap <- function(a, b){
+  # a: Species. Raster layer with value (1) for presence, and (NA) for absence
+  # b: Coldspots. Raster layer with value (1) for presence, and (NA) for absence
+  
+  # Load libraries
+  library(raster)
+  source("R/utils.R")
+  
+  # Calculate the intersection of the two rasters, this is given by adding 
+  # the binary rasters together -> 2 indicates intersection
+  combination <- sum(a, b, na.rm=TRUE)
+  intersection <- combination == 2
+  union <- combination >= 1
+  
+  ## Calculate surfaces
+  a_km2 <- binsurf(a)   # extent of the species, in km2 [A]
+  b_km2 <- binsurf(b)   # extent of the Argo coldspots, in km2 [B]
+  intersection_km2 <- binsurf(intersection)  # overlap between species range and Argo gap, in km2 [A∩B]
+  union_km2 <- binsurf(union)  # union of species range and Argo gap, in km2 [A∪B]
+  
+  ## Calculate metrics
+  overlap_a <- intersection_km2/a_km2  # proportion of species range overlaped by Argo gap, from 0-1 [A∩B]/A
+  overlap_b <- intersection_km2/b_km2  # proportion of Argo gap overlaped by species, from 0-1 [A∩B]/B
+  jaccard <- intersection_km2/union_km2  # Jaccard index of overlap. 1 means perfect overlap, 0 no overlap [A∩B]/[A∪B]
+  
+  ## Prepare output
+  out <- data.frame(a_km2, b_km2, intersection_km2, union_km2, overlap_a, overlap_b, jaccard)
+  return(out)
+}
+#------------------------------------------------------------------------------------
 
 
 

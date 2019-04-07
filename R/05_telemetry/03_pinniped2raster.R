@@ -2,7 +2,6 @@
 # 03_pinniped2raster.R
 #-------------------------------------------------------------------
 
-
 ## Load libraries
 library(raster)
 library(maptools)
@@ -76,7 +75,6 @@ writeRaster(pinniped, filename=outfile, bandorder='BIL', overwrite=TRUE)
 #--------------------------------------------------------
 # 2. Calculate density of profiles per km2 for all spp
 #--------------------------------------------------------
-
 
 ## Use complete dataset
 data <- profdf

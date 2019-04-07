@@ -47,7 +47,7 @@ for (i in 1:length(class)){
 
 
 #-------------------------------------------------------------------------
-# Fig 2. Density maps of species subject to telemetry by taxonomic group.
+# Fig 2. Density maps of species subject to telemetry (all taxa)
 #-------------------------------------------------------------------------
 # The number of species for each taxon were then normalized by rescaling from zero to one,
 # and averaged across taxa by cell for all taxa.

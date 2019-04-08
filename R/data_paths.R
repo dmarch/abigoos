@@ -133,6 +133,7 @@ spp_list_group <- paste(temp_dir, "spp_list_group.csv", sep="/")
 
 # rasterized maps
 eoo_tempdir <- paste(temp_dir, "eoo", sep="/")
+telemetry_tempdir <- paste(temp_dir, "telemetry", sep="/")
 
 
 

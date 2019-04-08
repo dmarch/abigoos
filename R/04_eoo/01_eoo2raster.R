@@ -94,7 +94,10 @@ for (i in 1:length(shps)){  # Loop for each shapefile
     ## Reproject to Equal-Area projection (Mollweide)
     rpols.prj <-  projectRaster(from = rpols, to = mask)
     
-    # save raster with species distribution per class
+    ## Filter out land cells
+    rpols.prj <- rpols.prj * mask
+    
+    # save raster with species distribution per species
     outfile <- paste0(eoo_tempdir, "/", itaxonid, ".nc")
     writeRaster(rpols.prj, filename=outfile,  format="CDF", overwrite=TRUE)
     

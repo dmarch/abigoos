@@ -59,14 +59,13 @@ match <- dplyr::select(match, taxonid, scientific_name)
 df <- merge(df, match, by="scientific_name")
 
 ## Rasterize OBIS-SEAMAP data per species
-turtle <- stack()  # create stack
-
 for (i in 1:nrow(df)){
   
+  ## get species info
   taxa <- as.character(df$taxa[i])
   var <- as.character(df$var[i])
   print(paste(taxa, var))
-  ispid <- as.character(df$taxonid[i])
+  itaxonid <- as.character(df$taxonid[i])
   
   ## Import data
   file <- eval(parse(text = taxa))
@@ -89,14 +88,10 @@ for (i in 1:nrow(df)){
   ## convert to binary
   rdata <- rdata/rdata
   
-  ## save into stack
-  names(rdata) <- ispid
-  turtle <- stack(turtle, rdata)
+  # save raster with species distribution per species
+  outfile <- paste0(telemetry_tempdir, "/", itaxonid, ".nc")
+  writeRaster(rdata, filename=outfile,  format="CDF", overwrite=TRUE)
 }
-
-# save raster with telemetry presence data per species
-outfile <- paste0(temp_dir, "/", "obisTurtles.grd")
-writeRaster(turtle, filename=outfile, bandorder='BIL', overwrite=TRUE)
 
 
 #--------------------------------------------------------
@@ -125,5 +120,5 @@ chelo <- rdata * mask
 chelo <- chelo / ((res(chelo)[1]/1000)*(res(chelo)[2]/1000))  # divide by km2
 
 # save raster with telemetry density observations
-outfile <- paste0(temp_dir, "/", "obisTurtlesDens.grd")
-writeRaster(chelo, filename=outfile, bandorder='BIL', overwrite=TRUE)
+outfile <- paste0(telemetry_tempdir, "/", "turtle_dens.nc")
+writeRaster(chelo, filename=outfile,  format="CDF", overwrite=TRUE)

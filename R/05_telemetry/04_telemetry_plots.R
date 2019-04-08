@@ -17,11 +17,11 @@ box <- bb(xmin = -180, xmax = 180, ymin = -90, ymax = 90, crs=PROJ)
 land.prj <- readOGR(temp_dir, temp_land)  # landmask
 
 ## Import sea turtle density of number of records
-turtle_dens <- paste0(temp_dir, "/", "obisTurtlesDens.grd")
+turtle_dens <- paste0(telemetry_tempdir, "/", "turtle_dens.nc")
 chelo <- raster(turtle_dens)
 
 ## Import pinnipeds density of number of profiles
-pin_dens <- paste0(temp_dir, "/", "meopPinDens.grd")
+pin_dens <- paste0(telemetry_tempdir, "/", "pinniped_dens.nc")
 pin <- raster(pin_dens)
 
 

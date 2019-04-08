@@ -33,12 +33,10 @@ match <- dplyr::select(match, taxonid, scientific_name)
 df <- filter(match, scientific_name %in% unique(profdf$scientific_name))
 
 ## Rasterize MEOP data per species
-pinniped <- stack()  # create stack
-
 for (i in 1:nrow(df)){
   
   ispp <- df$scientific_name[i]
-  ispid <- as.character(df$taxonid[i])
+  itaxonid <- as.character(df$taxonid[i])
   print(ispp)
   
   ## Subset data
@@ -61,15 +59,10 @@ for (i in 1:nrow(df)){
   ## convert to binary
   rdata <- rdata/rdata
   
-  ## save into stack
-  names(rdata) <- ispid
-  pinniped <- stack(pinniped, rdata)
+  # save raster with species distribution per species
+  outfile <- paste0(telemetry_tempdir, "/", itaxonid, ".nc")
+  writeRaster(rdata, filename=outfile,  format="CDF", overwrite=TRUE)
 }
-
-# save raster with telemetry presence data per species
-outfile <- paste0(temp_dir, "/", "meopPinniped.grd")
-writeRaster(pinniped, filename=outfile, bandorder='BIL', overwrite=TRUE)
-
 
 
 #--------------------------------------------------------
@@ -97,5 +90,39 @@ rdata <- rdata * mask
 rdata  <- rdata  / ((res(rdata )[1]/1000)*(res(rdata )[2]/1000))  # divide by km2
 
 # save raster with telemetry density observations
-outfile <- paste0(temp_dir, "/", "meopPinDens.grd")
-writeRaster(rdata, filename=outfile, bandorder='BIL', overwrite=TRUE)
+outfile <- paste0(telemetry_tempdir, "/", "pinniped_dens.nc")
+writeRaster(rdata, filename=outfile,  format="CDF", overwrite=TRUE)
+
+
+#--------------------------------------------------------
+# 3. Generate a pinniped map from EOO maps for common species
+#--------------------------------------------------------
+# There is telemetry data for the 7 species of turtles, that also have EOO maps.
+# However, we only have access to 10 species of pinnipeds, while there are 28 EOO maps.
+# In order to compare distributions of EOO and Telemetry, we will generate a new
+# map with the subset of species.
+
+
+# List of nc files of rasterize EOO maps
+ids <- df$taxonid
+rfiles <- c()
+for (f in 1:length(ids)){
+  pat <- paste0("^", ids[f], ".nc")
+  file <- list.files(eoo_tempdir, recursive=TRUE, pattern=pat, full.names=TRUE)
+  rfiles <- c(rfiles, file)
+}
+
+# Create a stack with all files
+s <- stack(rfiles)
+  
+# Calculate number of species per cell
+sum_grd <- sum(s, na.rm=TRUE)
+
+# Convert to presence
+sum_grd <- sum_grd/sum_grd
+  
+# save raster with species distribution per class
+outfile <- paste0(telemetry_tempdir, "/", "pinniped_subset.nc")
+writeRaster(sum_grd, filename=outfile,  format="CDF", overwrite=TRUE)
+
+

@@ -157,9 +157,9 @@ overlap <- function(a, b){
   union_km2 <- binsurf(union)  # union of species range and Argo gap, in km2 [A∪B]
   
   ## Calculate metrics
-  overlap_a <- intersection_km2/a_km2  # proportion of species range overlaped by Argo gap, from 0-1 [A∩B]/A
-  overlap_b <- intersection_km2/b_km2  # proportion of Argo gap overlaped by species, from 0-1 [A∩B]/B
-  jaccard <- intersection_km2/union_km2  # Jaccard index of overlap. 1 means perfect overlap, 0 no overlap [A∩B]/[A∪B]
+  overlap_a <- round(intersection_km2/a_km2, 3)  # proportion of species range overlaped by Argo gap, from 0-1 [A∩B]/A
+  overlap_b <- round(intersection_km2/b_km2, 3)  # proportion of Argo gap overlaped by species, from 0-1 [A∩B]/B
+  jaccard <- round(intersection_km2/union_km2, 3)  # Jaccard index of overlap. 1 means perfect overlap, 0 no overlap [A∩B]/[A∪B]
   
   ## Prepare output
   out <- data.frame(a_km2, b_km2, intersection_km2, union_km2, overlap_a, overlap_b, jaccard)

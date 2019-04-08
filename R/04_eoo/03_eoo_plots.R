@@ -70,7 +70,7 @@ for (i in 1:length(class)){
 }
 
 ## Average across taxa
-allnorm <- mean(rnorm)
+allnorm <- mean(rnorm, na.rm=TRUE)
 allnorm[allnorm == 0] <- NA
 
 ## Plot

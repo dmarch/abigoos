@@ -48,6 +48,10 @@ argoindex <- paste(raw_dir, "argo/argo_profile_detailled_index.txt", sep="/")
 eez_dir <-  paste(raw_dir, "World_EEZ_v9_20161021_LR", sep="/")
 eez_shp <- "eez_lr"
 
+# Ocean regions correspond to the "The SeaVoX Salt and Fresh Water Body Gazetteer" (v16 2015) that was extracted from marineregions.org
+seavox_dir <-  paste(raw_dir, "SeaVoX_sea_areas_polygons_v16", sep="/")
+seavox_shp <- "SeaVoX_v16_2015"
+
 # Species lists
 husseyfile <- paste(raw_dir, "species_lists", "Satellite List Locations and Species Info.tsv", sep="/")
 sequeirafile <- paste(raw_dir, "species_lists", "sequeira.csv", sep="/")
@@ -105,6 +109,15 @@ nd <- paste(raw_dir,
             "nd/obis_seamap_custom_5a0dd3bcadd90_20171116_130730_dist_sp_01deg_csv.csv",
             sep="/")
 
+
+# This file is the result of the following query:
+# Taxon: Chelonioidea
+# Data type: Telemetry
+# Access date: 11 November 2017
+seamap.turtle <- paste(raw_dir,
+            "telemetry/obis_seamap",
+            "animals_tagged_20171116/download_from_obis_seamap_5a0d7694efe66_.csv",
+            sep="/")
 
 
 

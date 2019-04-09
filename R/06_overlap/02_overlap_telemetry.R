@@ -48,28 +48,53 @@ df_pin <- filter(match, scientific_name %in% unique(profdf$scientific_name))  # 
 df_tur <- filter(match, group == "turtle")  # select all sea turtles
 match <- rbind(df_pin, df_tur)  # combine pinnipeds and turtles
 
+## Define ocean regions
+reg_no <- list(name="NO", xmin = -180, xmax = 180, ymin = 30, ymax = 60)
+reg_to <- list(name="TO", xmin = -180, xmax = 180, ymin = -30, ymax = 30)
+reg_so <- list(name="SO", xmin = -180, xmax = 180, ymin = -60, ymax = -30)
+reg_ao <- list(name="AO", xmin = -180, xmax = 180, ymin = 60, ymax = 90)
+reg_ato <- list(name="ATO", xmin = -180, xmax = 180, ymin = -90, ymax = -60)
+reg_go <- list(name="GO", xmin = -180, xmax = 180, ymin = -90, ymax = 90)
+reg <- list(reg_no, reg_to, reg_so, reg_ao, reg_ato, reg_go)
+ocean_regions <- rbindlist(reg)
 
 ## Prepare data
 overlap_list <- list()  # create empty list to store the results
 ids <- match$taxonid  # select unique IDs
+cnt <- 1
 
-## Calculate overlap between species range and Argo coldspots
-for (i in 1:length(ids)){
- 
-  print(paste("Species", i, "from", length(ids)))
+for (i in 1:nrow(ocean_regions)){
   
-  # import EOO raster map
-  taxonid <- ids[i]
-  pat <- paste0("^", taxonid, ".nc")
-  file <- list.files(telemetry_tempdir, recursive=TRUE, pattern=pat, full.names=TRUE)
-  r <- raster(file)
+  # Define region of interest
+  region <- ocean_regions$name[i]
+  box <- bb(xmin = ocean_regions$xmin[i], xmax = ocean_regions$xmax[i],
+            ymin = ocean_regions$ymin[i], ymax = ocean_regions$ymax[i], crs=PROJ)
+  region_r <- rasterize(box, coldspots)
   
-  # Overlap analysis
-  ov <- overlap(a=r, b=coldspots)
+  # Subset coldspot map
+  coldspots_sub <- region_r * coldspots
   
-  # Append results to list
-  df <- data.frame(taxonid, ov)
-  overlap_list[[i]] <- df
+  ## Calculate overlap between species range and Argo coldspots
+  for (j in 1:length(ids)){
+    
+    print(paste("Species", j, "from", length(ids)))
+    
+    # import EOO raster map
+    taxonid <- ids[j]
+    pat <- paste0("^", taxonid, ".nc")
+    file <- list.files(telemetry_tempdir, recursive=TRUE, pattern=pat, full.names=TRUE)
+    r <- raster(file)
+    
+    # Overlap analysis
+    ov <- overlap(a=r, b=coldspots_sub)
+    
+    # Append results to list
+    df <- data.frame(region, taxonid, ov)
+    overlap_list[[cnt]] <- df
+    
+    # Update counter
+    cnt <- cnt+1
+  }
 }
 
 ## Combine all species

@@ -135,16 +135,18 @@ ylab <- expression(Argo~surface~gap~(x10^4~km^2))
 fill <- c("#40b8d0", "#b2d183")
 p <- ggplot(dfm, aes(x = year, y = value, fill = variable)) + 
   geom_area(aes(fill=variable), position = position_stack(reverse = T))+ 
-  scale_x_continuous(breaks=seq(2005,2016,1)) +
+  scale_x_continuous(breaks=seq(2005,2016,1), expand = c(0, 0)) +
+  scale_y_continuous(expand = c(0, 0)) +
   scale_fill_manual(values=fill, labels=c("Un-sampled", "Under-sampled")) +
   labs(x = "Year", y = ylab) +
   theme_bw() + 
-  theme(legend.position="right", panel.grid.minor = element_blank(),
-        panel.grid.major = element_blank())
+  theme(legend.position = c(0.8, 0.2), legend.title=element_blank(),
+      legend.background = element_rect(color = "black", fill = "white", size = 0.2, linetype = "solid"),
+      panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 
 # Save as png file
 p_png <- paste(fig_dir,"argo","unsamp_undersamp_area.png", sep="/")
-ggsave(p_png, p, width=25, height=14, units="cm", dpi=300)
+ggsave(p_png, p, width=15, height=10, units="cm", dpi=300)
 
 
 

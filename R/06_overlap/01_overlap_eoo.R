@@ -101,7 +101,6 @@ names(data)[names(data)=="b_km2"] <- "coldspot_km2"
 names(data)[names(data)=="overlap_a"] <- "ov_range"
 names(data)[names(data)=="overlap_b"] <- "ov_coldspot"
 
-
 ## Export table
 outfile <- paste(overlap_dir, "eoo_overlap.csv", sep="/")
 write.csv(data, outfile, row.names=FALSE)

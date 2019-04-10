@@ -339,58 +339,6 @@ plotrasterDis <- function(r, land, box, palette = 'Spectral', ggtitle = NULL,
 }
 #----------------------------------------------------------------------
 
-#----------------------------------------------------------------------
-# presence         Calculate presence map from quintile map
-#----------------------------------------------------------------------
-presence <- function(r){
-  # sets first quintile (0-20%) to NA. The rest is reclassified to 1
-  m <- c(0, 1, NA,  1, 5, 1)
-  rclmat <- matrix(m, ncol=3, byrow=TRUE)
-  pres <- reclassify(r, rclmat)
-  return(pres)
-}
-#----------------------------------------------------------------------
-
-#----------------------------------------------------------------------
-# quintile         Calculate quintile map from raster map
-#----------------------------------------------------------------------
-quintile <- function(r){
-  # calculates the quintiles at 0-20%, 20-40%, 40-60%, 60-80%, 80%-100%
-  # reclassify raster based on those quintiles
-  quint <- quantile(r, probs = c(0, 0.20, 0.40, 0.60, 0.8, 1),
-                    type=7, na.rm=TRUE, names = FALSE)
-  qui.r <- cut(r, breaks=quint)
-  print(quint)
-  return(qui.r)
-}
-#----------------------------------------------------------------------
-
-
-#----------------------------------------------------------------------
-# unsamp         Calculate unsampled cells
-#----------------------------------------------------------------------
-unsamp <- function(r, mask){
-  # Arguments:
-  # r             raster of profile densities
-  # mask          raster of ocean mask
-  #
-  # Description:
-  # This function calculates and combines undersampled cells with unsampled cells.
-  # Undersampled cells are defined as those containing the 20 percentile from the accumulated
-  # distribution of number of profiles.
-  # Unsampled cells are define as those cells were there were any profile.
- 
-  ## Extract the undersampled cells (20th percentile)
-  q20 <- quantile(r, probs = c(0.20), type=7, na.rm=TRUE, names = FALSE)
-  runder <- cut(r, breaks=c(0, q20))  # set q20 cells equal to 1.
-  
-  ## Extract unsampled cells (no profiles)
-  runder[is.na(r)]<-1  # set cells wihtout profiles equal to 1
-  runsamp <- runder * mask  # filter out cells that are not ocean
-  return(runsamp)
-}
-#----------------------------------------------------------------------
-
 
 #----------------------------------------------------------------------
 # unsamp2         Calculate unsampled cells, but differentiate between undersampled(1) and unsampled(2)

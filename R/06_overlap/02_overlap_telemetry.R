@@ -85,8 +85,11 @@ for (i in 1:nrow(ocean_regions)){
     file <- list.files(telemetry_tempdir, recursive=TRUE, pattern=pat, full.names=TRUE)
     r <- raster(file)
     
+    # Subset species range map
+    r_sub <- region_r * r
+    
     # Overlap analysis
-    ov <- overlap(a=r, b=coldspots_sub)
+    ov <- overlap(a=r_sub, b=coldspots_sub)
     
     # Append results to list
     df <- data.frame(region, taxonid, ov)

@@ -123,7 +123,7 @@ dev.off()
 # and animal-borne platforms species by taxonomic group and region
 
 ## Combine with species list
-match_sel <- select(match, taxonid, group, scientific_name, group_code)
+match_sel <- dplyr::select(match, taxonid, group, scientific_name, group_code)
 eoo_overlap <- merge(eoo_overlap, match_sel, by="taxonid")
 
 ## Subset data by region

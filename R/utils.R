@@ -366,75 +366,6 @@ quintile <- function(r){
 #----------------------------------------------------------------------
 
 
-#-----------------------------------------------------------------------------------------------
-#spatialOverlap        Spatial Overlap between gaps of Argo network and species distributions
-#-----------------------------------------------------------------------------------------------
-spatialOverlap <- function(s, r, m){
-  # Arguments:
-  # s         Raster stack with n layers
-  # r         Raster with 1 layer
-  # m         Raster used as mask that represent the study region
-  # crs       Corrdinate reference system
-  #
-  # Description:
-  # Calculates the spatial overlap between each layer (i) from 's' and 'r'.
-  # OVerlap metrics include Jaccard and percent of 'r' overlapped by 's'(i)
-  # All three raster must be in the same coordinate reference system (CRS)
-  #
-  # Value:
-  # Return a data.frame with the name of each layer (i) and the overlap indices
-  
-  ## Load libraries
-  library(raster)
-  source("R/utils.R")
-  
-  ## Mask raster to study area
-  rm <- mask(r, m)
-  sm <- mask(s, m)
-  
-  ## Calculate surface of 'r'
-  r_km2 <- binsurf(rm)  # km2
-  
-  ## Prepare output data.frame
-  df <- data.frame(
-    id = substring(names(sm), 2),
-    r_km2 = r_km2,  # extent of the Argos gap, in km2 [B]
-    s_km2 = NA,  # extent of the species, in km2 [A]
-    #intersection_km2 = NA,  # overlap between species range and Argo gap, in km2 [A∩B]
-    overlap_sp = NA,  # proportion of species range overlaped by Argo gap, from 0-1 [A∩B]/A
-    overlap_argo = NA,  # proportion of Argo gap overlaped by species, from 0-1 [A∩B]/B
-    #union_km2 = NA,  # union of species range and Argo gap [A∪B]
-    jaccard = NA  # Jaccard index of overlap. 1 means perfect overlap, 0 no overlap [A∩B]/[A∪B]
-  )
-  
-  ## Overlap each layer
-  for (i in 1:nlayers(sm)){
-    
-    # Extract layer
-    si <- subset(sm, i)
-    
-    # Calculate the intersection of the two rasters, this is given by adding 
-    # the binary rasters together -> 2 indicates intersection
-    combination <- sum(rm, si, na.rm=TRUE)
-    intersection <- combination == 2
-    union <- combination >= 1
-    
-    ## Calculate surfaces
-    df$s_km2[i] <- binsurf(si)   # extent of the species, in km2 [A]
-    #df$intersection_km2[i] <- binsurf(intersection)  # overlap between species range and Argo gap, in km2 [A∩B]
-    #df$union_km2[i] <- binsurf(union)  # union of species range and Argo gap, in km2 [A∪B]
-    df$overlap_sp[i] <- binsurf(intersection)/binsurf(si)  # proportion of species range overlaped by Argo gap, from 0-1 [A∩B]/A
-    df$overlap_argo[i] <- binsurf(intersection)/r_km2  # proportion of Argo gap overlaped by species, from 0-1 [A∩B]/B
-    df$jaccard[i] <- binsurf(intersection)/binsurf(union) # Jaccard index of overlap. 1 means perfect overlap, 0 no overlap [A∩B]/[A∪B]
-  }
-  
-  ## Return data.frame
-  return(df)
-  
-}
-#-----------------------------------------------------------------------------------------------
-
-
 #----------------------------------------------------------------------
 # unsamp         Calculate unsampled cells
 #----------------------------------------------------------------------
@@ -485,8 +416,6 @@ unsamp2 <- function(r, mask){
   return(runsamp)
 }
 #----------------------------------------------------------------------
-
-
 
 
 #----------------------------------------------------------------------

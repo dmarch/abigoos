@@ -50,7 +50,8 @@ out$total.records.percent <- round(out$total.records/sum(out$total.records)*100,
 out$sp_code <- c("Cc", "Cm", "Dc", "Ei", "Lk", "Lo", "Nd")
 
 ## Export result
-#write.table(out, "C:/data/goosturtles/output/seaturtle/animals_summary.csv", sep=";", dec=",", row.names=FALSE)
+outfile <- paste(temp_dir, "obis_turtle_summary.csv", sep="/")
+write.csv(out, outfile, row.names=FALSE)
 
 
 #-------------------------------------

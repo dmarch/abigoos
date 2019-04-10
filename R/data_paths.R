@@ -16,7 +16,8 @@ GEO <- "+proj=longlat +ellps=WGS84"
 raw_dir <- "E:/abigoosv2/data/raw"  # raw data folder
 temp_dir <- "E:/abigoosv2/data/temp"  # temporary data folder
 out_dir <- "E:/abigoosv2/data/out" # output data folder
-fig_dir <- "E:/abigoosv2/fig" # output data folder
+fig_dir <- "E:/abigoosv2/fig" # output data folder for figures
+tbl_dir <- "E:/abigoosv2/tbl" # output data folder for tables
 auth_dir <- "E:/abigoosv2/auth"
 
 # Set auth credentials ----------------------------------------------------

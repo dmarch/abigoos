@@ -214,13 +214,18 @@ ggsave(p_png, p, width=25, height=14, units="cm", dpi=300)
 # Plot 7: Coldspots
 #------------------------------------------------
 
-p <- plotrasterDis(r = coldspots, land = land.prj, box = box,
-                   colors = c("1" = "#08519c"),
-                   breaks = 1, legend.position = "none")
-
-# Save as png file
+# set output file and open device
 p_png <- paste(fig_dir,"argo","coldspot.png", sep="/")
-ggsave(p_png, p, width=25, height=14, units="cm", dpi=300)
+png(p_png , width=25, height=14, units="cm", res=300)
+
+# plot
+plot(coldspots, col=c("#4393c3") , axes=FALSE, box=FALSE, legend=FALSE)
+plot(coldspots_shp, col= "transparent", border= "grey40", lwd=0.01, add=TRUE) #border=NA
+plot(land.prj, col= "grey80", border= "grey40", lwd=0.01, add=TRUE) #border=NA
+plot(box, border= "grey70", add=TRUE)
+
+# close device
+dev.off()
 
 
 #------------------------------------------------

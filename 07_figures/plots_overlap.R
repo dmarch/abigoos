@@ -46,7 +46,7 @@ for (i in 1:length(class)){
   ## Normalize number of species from zero to one
   nc <- setMinMax(nc)
   norm <- (nc - minValue(nc)) / (maxValue(nc) - minValue(nc))
-  if (minValue(nc) == maxValue(nc)) norm <- nc
+  if (minValue(nc) == maxValue(nc)) norm <- nc # this exception applies for sirenians with max values = 1
   
   ## Mask with coldspots
   ov <- norm * coldspots  # Mask for Argo undersampled areas

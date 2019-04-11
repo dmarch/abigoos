@@ -22,6 +22,8 @@ spp <- merge(match, eoo_overlap, by="taxonid")
 df <- spp %>%
   group_by (group_name) %>% #ISO_Ter1, Sovereign1
   summarise (
+    # no. species
+    n = n(),
     # exntent
     meanExtent_km2 = mean(range_km2, na.rm=TRUE),
     sdExtent_km2 = sd(range_km2, na.rm=TRUE),

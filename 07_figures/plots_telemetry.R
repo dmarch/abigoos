@@ -30,8 +30,8 @@ pin <- raster(pin_dens)
 #-------------------------------------------------------------------------
 
 # Create plot
-p <- plotraster(r = log10(chelo), land = land.prj, box = box,
-                legendTitle = expression(log[10]~(records / km^2)))
+p <- plotraster(r = log10(chelo), land = land.prj, box = box, legend.position="bottom",
+                legendTitle = expression(log[10]~(observations / km^2)))
 
 # Save as png file
 p_png <- paste(fig_dir,"telemetry","turtle_telemetry_density.png", sep="/")

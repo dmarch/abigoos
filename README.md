@@ -65,7 +65,7 @@ Licensed under the [MIT license](https://github.com/dmarch/abigoos/blob/master/L
 
 ## Citation
 
-David March, Joaquín Tintoré, Brendan J Godley. (2019) Towards the integration of animal-borne instruments into global ocean observing systems.
+David March, Lars Boehme, Joaquín Tintoré, Pedro Joaquín Vélez-Belchi, Brendan J Godley. (2019) Towards the integration of animal-borne instruments into global ocean observing systems.
 
 
 ## Acknowledgements

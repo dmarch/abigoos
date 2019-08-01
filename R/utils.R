@@ -10,6 +10,8 @@
 # 
 # bb               Create world bounding box at custom CRS
 # binsurf         Calculate surface of binary map on Equal area projection
+# getTaxonId        Return taxon id from IUCN using its scientific name
+
 # oceanArea
 # oceanAreaEEZ
 # overlap       Overlap between species range (a) and Argo coldspots (b)
@@ -93,6 +95,54 @@ binsurf <- function(r){
   return(surf)
 }
 #------------------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------------------
+# getTaxonId                Return taxon id from IUCN using its scientific name
+#-----------------------------------------------------------------------------------
+getTaxonId <- function(scientific_name, key){
+  
+  library("rredlist")  # Use the IUCN API
+  
+  taxid <- NULL
+  
+  for (i in 1:length(scientific_name)){
+    
+    sciname <- scientific_name[i]
+    
+    # search taxonomic information
+    rl <- rl_search(sciname, key = key)
+    
+    # if there are no results
+    if(is.null(rl$result) | length(rl$result)==0){
+      
+      # check for synonims
+      s <- rl_synonyms(sciname, key = key)
+      
+      # if no results, retun NA
+      if(is.null(s$result) | length(s$result)==0){
+        itaxid <- NA
+      } else {
+        
+        # if results, then search taxonomic informqtion
+        syn <- s$result$accepted_name[1]
+        rl <- rl_search(syn, key = key)
+        itaxid <- rl$result$taxonid
+      }
+    } else {
+      
+      itaxid <- rl$result$taxonid
+    }
+    
+    taxid <- c(taxid, itaxid)   
+  }
+  
+  # return taxon ids
+  return(taxid)
+}
+#-----------------------------------------------------------------------------
+
+
 
 #-----------------------------------
 # oceanArea

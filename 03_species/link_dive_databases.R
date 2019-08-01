@@ -1,15 +1,28 @@
 #-------------------------------------------------------------------------------------------------
 # link_dive_databases.R            Link species list with Dive Databases
 #-------------------------------------------------------------------------------------------------
+# We combine differnet dive depth databases in order to assess the potential distribution of vertical
+# profiles collected by animal-borne instruments.
+# We use the IUCN API to get a taxonid for scientific names and perform a better match, even with synonims.
+# 
+# We combine data from multiple sources:
+# IUCN
+# Sealifebase
+# Ropert-Coudert Y, Kato A, Robbins A, Humphries GRW (2018) The Penguiness book.
+# Halsey et al. 2006. A Phylogenetic Analysis of the Allometry of Diving. The American Naturalist 2006 167:2, 276-287 
+# Hoscheid et al. 2014. Why we mind sea turtles' underwater business: A review on the study of diving behavior.
+# Ponganis et al. 2015. Diving Physiology of Marine Mammals and Seabirds. Cambridge
+# Any reference for sharks a fishes?
+
 
 library(dplyr)
-
+source("R/utils.R")
+source("R/data_paths.R")
 
 ## Import data
 
 # Species list
-spp_file <- "D:/temp/sd1_tbl_species_list.csv"
-df <- read.csv(spp_file)
+df <- read.csv(spp_list_group)
 
 # Penguiness book --------------
 # Ropert-Coudert Y, Kato A, Robbins A, Humphries GRW (2018) The Penguiness book.
@@ -25,9 +38,8 @@ pen <- read.csv(penguiness_file)
 # Note:
 # - Raw file has been manipulated to remove subheaders and blank lines
 # - Subspecies removed and aggregated at species level (max depth selected)
-halsey_file <- "D:/temp/halsey_2006.txt"
-hal <- read.table(halsey_file, sep="\t", header=TRUE, fill = TRUE)
-
+halsey_file <- "D:/temp/halsey_2006.csv"
+hal <- read.csv(halsey_file)
 
 
 ##### Process Penguiness book data
@@ -36,40 +48,69 @@ hal <- read.table(halsey_file, sep="\t", header=TRUE, fill = TRUE)
 pen$depth <-as.numeric(as.character(pen$depth))
 pen$max.depth <-as.numeric(as.character(pen$max.depth))
 
+# set depth 0 to NA
+pen$depth[pen$depth == 0] <- NA
+pen$max.depth[pen$max.depth == 0] <- NA
+
 # get max depth and max.depth from the records
 pen <- pen %>%
-  filter(depth.type != "None", depth > 0) %>%
+  filter(!is.na(depth) | !is.na(max.depth)) %>%
   group_by(latin.name) %>%
   summarize(pen_depth_m = max(depth, na.rm=TRUE),
             pen_maxdepth_m = max(max.depth, na.rm = TRUE))
 
+# Set Inf values to NA
+pen$pen_depth_m[is.infinite(pen$pen_depth_m)] <- NA
+pen$pen_maxdepth_m[is.infinite(pen$pen_maxdepth_m)] <- NA
+
 # if max.depth is smaller than depth, then reassign
 pen$dif <- pen$pen_maxdepth_m - pen$pen_depth_m
-pen$pen_maxdepth_m[pen$dif < 0] <- pen$pen_depth_m[pen$dif < 0]
+pen$pen_maxdepth_m[which((pen$dif < 0)=="TRUE")] <- pen$pen_depth_m[which((pen$dif < 0)=="TRUE")]
 pen <- select(pen, -dif)
 
+# get taxon id
+pen$taxonid <- getTaxonId(as.character(pen$latin.name), key)
+
 # join with species list
-match <- merge(df, pen, by.x="scientific_name", by.y="latin.name", all.x=TRUE)
+match <- merge(df, pen, by="taxonid", all.x=TRUE)
+
+
+
+
+
+
+
+
 
 
 
 ##### Process Halsey et al.
 
+
+# filter out register where dive depth OR max dive depth are missing
+hal <- filter(hal, !is.na(dive_depth_m) | !is.na(max_dive_depth_m))
+
+# check that max dive depth is lager than dive depth. If not.
+
+
+hal$dif <- hal$max_dive_depth_m - hal$dive_depth_m
+hal$max_dive_depth_m[hal$dif < 0] <- hal$dive_depth_m[hal$dif < 0]
+
 # get max depth and max.depth from the records
 hal <- hal %>%
-  filter(!is.na(Dive.depth..m.))%>%#, !is.na(Maximum.dive.depth..m.)) %>%
-  group_by(Latin.name.) %>%
-  summarize(hal_depth_m = max(Dive.depth..m., na.rm=TRUE),
-            hal_maxdepth_m = max(Maximum.dive.depth..m., na.rm = TRUE))
+  #filter(!is.na(dive_depth_m))%>%#, !is.na(Maximum.dive.depth..m.)) %>%
+  group_by(latin_name) %>%
+  summarize(hal_depth_m = max(dive_depth_m, na.rm=TRUE),
+            hal_maxdepth_m = max(max_dive_depth_m, na.rm = TRUE))
 
 # if max.depth is smaller than depth, then reassign
-hal$dif <- hal$hal_maxdepth_m - hal$hal_depth_m
-hal$hal_maxdepth_m[hal$dif < 0] <- hal$hal_depth_m[hal$dif < 0]
-hal <- select(hal, -dif)
+# hal$dif <- hal$hal_maxdepth_m - hal$hal_depth_m
+# hal$hal_maxdepth_m[hal$dif < 0] <- hal$hal_depth_m[hal$dif < 0]
+# hal <- select(hal, -dif)
 
 
 # join with species list
-match <- merge(match, hal, by.x="scientific_name", by.y="Latin.name.", all.x=TRUE)
+match <- merge(match, hal, by.x="scientific_name", by.y="latin_name", all.x=TRUE)
 
 
 
@@ -91,6 +132,7 @@ match$maxdepth_m <- pmax(match$depth_lower_m, match$pen_maxdepth_m, match$hal_ma
 df <- filter(match, !is.na(depth_m))
 
 ##
+library(ggplot2)
 
 #### Figure: violin plot
 p <- ggplot(df, aes(factor(group_name), maxdepth_m)) +

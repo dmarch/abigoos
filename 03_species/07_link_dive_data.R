@@ -211,6 +211,13 @@ df$maxdepth_source[sel] <- "Hoscheid et al. 2014"
 ## Filter species with depth data
 df <- filter(df, !is.na(maxdepth_m))
 
+
+df %>% 
+  group_by(group_code) %>%
+  summarize(n = n())
+
+
+
 ##
 library(ggplot2)
 library(ggpubr)

@@ -13,6 +13,8 @@
 # Hoscheid et al. 2014. Why we mind sea turtles' underwater business: A review on the study of diving behavior.
 # Ponganis et al. 2015. Diving Physiology of Marine Mammals and Seabirds. Cambridge
 # Any reference for sharks a fishes?
+# Burger 2001. Diving depths of sharwaters
+# Taylor 2008. Maximum dive depths of eight New Zeland Procellariiformes, including Pterodroma species
 
 
 
@@ -137,6 +139,11 @@ hos <- select(hos, -species, -source, -max_depth_m)
 df <- merge(df, hos, by="taxonid", all.x=TRUE)
 
 
+## Export table as temporary file
+write.csv(df, paste(temp_dir, "spp_list_depth.csv", sep="/"), row.names=FALSE)
+
+
+
 #--------------------------------------------------------------------
 # 4. Search species without data
 #--------------------------------------------------------------------
@@ -151,13 +158,40 @@ df <- merge(df, hos, by="taxonid", all.x=TRUE)
 
 ## Get max value among the different databases
 df$depth_m <- pmax(df$depth_lower, df$DepthRangeComDeep, df$pen_depth_m, df$hal_depth_m, na.rm=TRUE)
-df$maxdepth_m <- pmax(df$depth_lower, df$pen_maxdepth_m, df$hal_maxdepth_m, df$hos_max_depth_m, na.rm=TRUE)
+df$maxdepth_m <- pmax(df$depth_lower, df$pen_maxdepth_m, df$DepthRangeDeep, df$hal_maxdepth_m, df$hos_max_depth_m, na.rm=TRUE)
 
 
 ## select by priority (Hoscheid > Pen > Hal > Sealifebase > IUCN)
+## higher priority are incorporated later and overwrite previous data
 
+# For max depth
+df$maxdepth_m <- NA
+df$maxdepth_source <- NA
 
+# Sealifebase
+sel <- which(!is.na(df$DepthRangeDeep))
+df$maxdepth_m[sel] <- df$DepthRangeDeep[sel]
+df$maxdepth_source[sel] <- "Sealifebase"
 
+# IUCN
+sel <- which(!is.na(df$depth_lower))
+df$maxdepth_m[sel] <- df$depth_lower[sel]
+df$maxdepth_source[sel] <- "IUCN"
+
+# Halsey
+sel <- which(!is.na(df$hal_maxdepth_m))
+df$maxdepth_m[sel] <- df$hal_maxdepth_m[sel]
+df$maxdepth_source[sel] <- "Halsey et al. 2006"
+
+# Penguiness book
+sel <- which(!is.na(df$pen_maxdepth_m))
+df$maxdepth_m[sel] <- df$pen_maxdepth_m[sel]
+df$maxdepth_source[sel] <- "Penguiness book"
+
+# Hoscheid et al. 2014
+sel <- which(!is.na(df$hos_max_depth_m))
+df$maxdepth_m[sel] <- df$hos_max_depth_m[sel]
+df$maxdepth_source[sel] <- "Hoscheid et al. 2014"
 
 
 
@@ -175,7 +209,7 @@ df$maxdepth_m <- pmax(df$depth_lower, df$pen_maxdepth_m, df$hal_maxdepth_m, df$h
 
 
 ## Filter species with depth data
-df <- filter(df, !is.na(depth_m))
+df <- filter(df, !is.na(maxdepth_m))
 
 ##
 library(ggplot2)
@@ -187,16 +221,16 @@ p <- ggplot(df, aes(factor(group_code), maxdepth_m)) +
   geom_jitter(height = 0, width = 0.1, alpha = I(1 / 1.5), color="dodgerblue3") + 
   theme_bw() + 
   labs(y = "Depth (m)", x = "") +
-  ylim(3000, 0) +
+  ylim(4000, 0) +
   geom_hline(yintercept=c(1000, 2000), linetype="dotted") +
   #scale_x_discrete(limits=c("TB", "SR", "PI", "CE", "FB", "PE", "TU", "SI")) +
   theme(legend.position="none",
         panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 p
 
-p<-ggplot(data=df, aes(x=reorder(scientific_name, depth_m), y=depth_m, fill=group_code)) +
+p<-ggplot(data=df, aes(x=reorder(scientific_name, maxdepth_m), y=maxdepth_m, fill=group_code)) +
   geom_bar(stat="identity") + 
-  scale_y_continuous(trans = 'reverse', limits = c(3000, 0), expand = c(0, 0)) +
+  scale_y_continuous(trans = 'reverse', limits = c(4000, 0), expand = c(0, 0)) +
   labs(y = "Maximum dive depth (m)", x = "") +
   scale_fill_brewer(palette = "Set2") +
   geom_hline(yintercept=c(1000, 2000), linetype="dotted") +
@@ -212,12 +246,12 @@ p
 
 
 df2 <- df %>%
-  arrange(group_code, depth_m) %>%
+  arrange(group_code, maxdepth_m) %>%
   mutate(scientific_name = factor(scientific_name, levels = scientific_name))
 
-p<-ggplot(data=df2, aes(x=scientific_name, y=depth_m, fill=group_code)) +
+p<-ggplot(data=df2, aes(x=scientific_name, y=maxdepth_m, fill=group_code)) +
   geom_bar(position="dodge", stat="identity") + 
-  scale_y_continuous(trans = 'reverse', limits = c(3000, 0), expand = c(0, 0)) +
+  scale_y_continuous(trans = 'reverse', limits = c(4000, 0), expand = c(0, 0)) +
   labs(y = "Maximum dive depth (m)", x = "") +
   scale_fill_brewer(palette = "Set2") +
   geom_hline(yintercept=c(1000, 2000), linetype="dotted") +
@@ -234,14 +268,14 @@ p
 
 
 # lollipop chart
-ggplot(df2, aes(x = scientific_name, y = depth_m)) +
+ggplot(df2, aes(x = scientific_name, y = maxdepth_m)) +
   geom_segment(
-    aes(x = scientific_name, xend = scientific_name, y = 0, yend = depth_m), 
+    aes(x = scientific_name, xend = scientific_name, y = 0, yend = maxdepth_m), 
     color = "lightgray", size = 2) + 
   #geom_point(aes(colour = group_code), size = 4) +
   #geom_point(shape = 21, colour = "black", fill = group_code, size = 4, stroke = 0.5) +
   geom_point(aes(fill = group_code), size = 4, shape=21) +
-  scale_y_continuous(trans = 'reverse', limits = c(2000, 0), expand = c(0, 0)) +
+  scale_y_continuous(trans = 'reverse', limits = c(4000, 0), expand = c(0, 0)) +
   labs(y = "Maximum dive depth (m)", x = "") +
   scale_color_brewer(palette = "Set2") +
   geom_hline(yintercept=c(1000, 2000), linetype="dotted") +
@@ -255,8 +289,29 @@ ggplot(df2, aes(x = scientific_name, y = depth_m)) +
   )
 
 
+# lollipop chart
+ggplot(df, aes(x = reorder(scientific_name, maxdepth_m), y = maxdepth_m)) +
+  geom_segment(
+    aes(x = reorder(scientific_name, maxdepth_m), xend = reorder(scientific_name, maxdepth_m), y = 0, yend = maxdepth_m), 
+    color = "lightgray", size = 1) + 
+  geom_point(aes(colour = group_code), size = 2) +
+  #geom_point(shape = 21, colour = "black", fill = group_code, size = 4, stroke = 0.5) +
+  #geom_point(aes(fill = group_code), size = 3, shape=21) +
+  scale_y_continuous(trans = 'reverse', limits = c(4000, 0), expand = c(0, 0)) +
+  labs(y = "Maximum dive depth (m)", x = "") +
+  scale_color_brewer(palette = "Set2") +
+  geom_hline(yintercept=c(1000, 2000), linetype="dotted") +
+  theme_bw(base_size = 12, base_family = "") +
+  theme(
+    legend.position="right",
+    panel.grid = element_blank(),
+    axis.text.x = element_blank(),
+    axis.ticks.x=element_blank(),
+    axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm"))
+  )
 
-ggdotchart(df2, x = "scientific_name", y = "depth_m",
+
+ggdotchart(df2, x = "scientific_name", y = "maxdepth_m",
            color = "group_code",                         # Color by groups
            #palette = c("#00AFBB", "#E7B800", "#FC4E07"), # Custom color palette
            #sorting = "group_code",                        # Sort value in descending order
@@ -265,20 +320,6 @@ ggdotchart(df2, x = "scientific_name", y = "depth_m",
 )
 
 
-ggdotchart(dfm, x = "name", y = "mpg_z",
-           color = "cyl",                                # Color by groups
-           palette = c("#00AFBB", "#E7B800", "#FC4E07"), # Custom color palette
-           sorting = "descending",                       # Sort value in descending order
-           add = "segments",                             # Add segments from y = 0 to dots
-           add.params = list(color = "lightgray", size = 2), # Change segment color and size
-           group = "cyl",                                # Order by groups
-           dot.size = 6,                                 # Large dot size
-           label = round(dfm$mpg_z,1),                        # Add mpg values as dot labels
-           font.label = list(color = "white", size = 9, 
-                             vjust = 0.5),               # Adjust label parameters
-           ggtheme = theme_pubr()                        # ggplot2 theme
-)+
-  geom_hline(yintercept = 0, linetype = 2, color = "lightgray")
 
 # https://www.r-bloggers.com/bar-plots-and-modern-alternatives/
 # https://www.datanovia.com/en/blog/ggplot-examples-best-reference/

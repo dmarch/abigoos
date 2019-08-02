@@ -17,6 +17,10 @@
 # Taylor 2008. Maximum dive depths of eight New Zeland Procellariiformes, including Pterodroma species
 
 
+# Manually update
+# Ponganis:
+# Eubalaena glacialis: 120 m
+
 
 
 library(dplyr)
@@ -141,7 +145,7 @@ df <- merge(df, hos, by="taxonid", all.x=TRUE)
 
 ## Export table as temporary file
 write.csv(df, paste(temp_dir, "spp_list_depth.csv", sep="/"), row.names=FALSE)
-
+df <- read.csv(paste(temp_dir, "spp_list_depth.csv", sep="/"))
 
 
 #--------------------------------------------------------------------

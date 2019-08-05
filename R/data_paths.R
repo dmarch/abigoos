@@ -13,7 +13,7 @@ GEO <- "+proj=longlat +ellps=WGS84"
 # Set main directories ----------------------------------------------------
 
 ## Set absolute paths of the three main data folders
-main_path <- "F:/abigoosv2/"
+main_path <- "D:/abigoosv2/"
 raw_dir <- paste0(main_path, "data/raw")  # raw data folder
 temp_dir <- paste0(main_path, "data/temp") # temporary data folder
 out_dir <- paste0(main_path, "data/out") # output data folder

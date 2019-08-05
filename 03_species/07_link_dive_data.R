@@ -146,6 +146,7 @@ df <- merge(df, hos, by="taxonid", all.x=TRUE)
 ## Export table as temporary file
 write.csv(df, paste(temp_dir, "spp_list_depth.csv", sep="/"), row.names=FALSE)
 df <- read.csv(paste(temp_dir, "spp_list_depth.csv", sep="/"))
+df <- read.csv(paste("C:/Temp", "spp_list_depth.csv", sep="/"))
 
 
 #--------------------------------------------------------------------
@@ -161,8 +162,8 @@ df <- read.csv(paste(temp_dir, "spp_list_depth.csv", sep="/"))
 
 
 ## Get max value among the different databases
-df$depth_m <- pmax(df$depth_lower, df$DepthRangeComDeep, df$pen_depth_m, df$hal_depth_m, na.rm=TRUE)
-df$maxdepth_m <- pmax(df$depth_lower, df$pen_maxdepth_m, df$DepthRangeDeep, df$hal_maxdepth_m, df$hos_max_depth_m, na.rm=TRUE)
+# df$depth_m <- pmax(df$depth_lower, df$DepthRangeComDeep, df$pen_depth_m, df$hal_depth_m, na.rm=TRUE)
+# df$maxdepth_m <- pmax(df$depth_lower, df$pen_maxdepth_m, df$DepthRangeDeep, df$hal_maxdepth_m, df$hos_max_depth_m, na.rm=TRUE)
 
 
 ## select by priority (Hoscheid > Pen > Hal > Sealifebase > IUCN)
@@ -215,122 +216,60 @@ df$maxdepth_source[sel] <- "Hoscheid et al. 2014"
 ## Filter species with depth data
 df <- filter(df, !is.na(maxdepth_m))
 
-
-df %>% 
+## Summarize results
+depth_sum <- df %>% 
   group_by(group_code) %>%
-  summarize(n = n())
+  summarize(n = n(),
+            avg_maxdepth = mean(maxdepth_m),
+            sd_maxdepth = sd(maxdepth_m),
+            med_maxdetph = median(maxdepth_m),
+            min_maxdepth = min(maxdepth_m),
+            max_maxdepth = max(maxdepth_m)
+            )
 
+## Calculate proportion of species within multiple depth levels.
+depth_levels <- seq(from = 10, to = 4000, by=10)
+total_species <- nrow(df)
+prop_depth <- NULL
+for (i in 1:length(depth_levels)){
+  prop <- sum(df$maxdepth_m > depth_levels[i])/total_species
+  prop_depth <- c(prop_depth, prop)
+}
+depth_df <- data.frame(depth_levels, prop_depth)
+plot(depth_levels, prop_depth, type="l")
+
+# proportion at 2000m
+# 8 species (6.5%)
+prop2000 <- (sum(df$maxdepth_m > 2000)/total_species)*100
+prop1000 <- (sum(df$maxdepth_m > 1000)/total_species)*100
 
 
 ##
 library(ggplot2)
-library(ggpubr)
+
+groups_order <- as.character(depth_sum$group_code[order(depth_sum$max_maxdepth)])
 
 #### Figure: violin plot
+
 p <- ggplot(df, aes(factor(group_code), maxdepth_m)) +
-  geom_violin(trim = TRUE, fill = "grey80", colour = "grey70", scale="width") +
-  geom_jitter(height = 0, width = 0.1, alpha = I(1 / 1.5), color="dodgerblue3") + 
-  theme_bw() + 
-  labs(y = "Depth (m)", x = "") +
-  ylim(4000, 0) +
-  geom_hline(yintercept=c(1000, 2000), linetype="dotted") +
-  #scale_x_discrete(limits=c("TB", "SR", "PI", "CE", "FB", "PE", "TU", "SI")) +
-  theme(legend.position="none",
-        panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+  geom_violin(aes(fill = group_code, colour = group_code), trim = TRUE, scale="width", alpha = I(1 / 3)) +
+  geom_jitter(aes(color = group_code), height = 0, width = 0.1, alpha = I(1 / 1.5)) + 
+  labs(y = "Maximum dive depth (m)", x = "") +
+  scale_y_continuous(trans = 'reverse', limits = c(4000, 0), expand = c(0, 0)) +
+  geom_hline(yintercept=c(2000), linetype="dotted") +
+  scale_x_discrete(limits=groups_order) +
+  theme_bw(base_size = 12, base_family = "") +
+  theme(
+    legend.position =  "none",
+    panel.grid = element_blank(),
+    axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")), 
+    axis.text.x = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm"))
+  )
 p
 
-p<-ggplot(data=df, aes(x=reorder(scientific_name, maxdepth_m), y=maxdepth_m, fill=group_code)) +
-  geom_bar(stat="identity") + 
-  scale_y_continuous(trans = 'reverse', limits = c(4000, 0), expand = c(0, 0)) +
-  labs(y = "Maximum dive depth (m)", x = "") +
-  scale_fill_brewer(palette = "Set2") +
-  geom_hline(yintercept=c(1000, 2000), linetype="dotted") +
-  theme_bw(base_size = 12, base_family = "") +
-  theme(
-    legend.position="right",
-    panel.grid = element_blank(),
-    axis.text.x = element_blank(),
-    axis.ticks.x=element_blank(),
-    axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm"))
-  )
-p  
 
+# Save as png file
+p_png = paste0(fig_dir, "/dive/violin_maxdepth.png")
+#ggsave(p_png, p, width=10, height=8, units="cm", dpi=300)
+ggsave(p_png, p, width=12, height=10, units="cm", dpi=300)
 
-df2 <- df %>%
-  arrange(group_code, maxdepth_m) %>%
-  mutate(scientific_name = factor(scientific_name, levels = scientific_name))
-
-p<-ggplot(data=df2, aes(x=scientific_name, y=maxdepth_m, fill=group_code)) +
-  geom_bar(position="dodge", stat="identity") + 
-  scale_y_continuous(trans = 'reverse', limits = c(4000, 0), expand = c(0, 0)) +
-  labs(y = "Maximum dive depth (m)", x = "") +
-  scale_fill_brewer(palette = "Set2") +
-  geom_hline(yintercept=c(1000, 2000), linetype="dotted") +
-  theme_bw(base_size = 12, base_family = "") +
-  theme(
-    legend.position="right",
-    panel.grid = element_blank(),
-    axis.text.x = element_blank(),
-    axis.ticks.x=element_blank(),
-    axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm"))
-  )
-p 
-
-
-
-# lollipop chart
-ggplot(df2, aes(x = scientific_name, y = maxdepth_m)) +
-  geom_segment(
-    aes(x = scientific_name, xend = scientific_name, y = 0, yend = maxdepth_m), 
-    color = "lightgray", size = 2) + 
-  #geom_point(aes(colour = group_code), size = 4) +
-  #geom_point(shape = 21, colour = "black", fill = group_code, size = 4, stroke = 0.5) +
-  geom_point(aes(fill = group_code), size = 4, shape=21) +
-  scale_y_continuous(trans = 'reverse', limits = c(4000, 0), expand = c(0, 0)) +
-  labs(y = "Maximum dive depth (m)", x = "") +
-  scale_color_brewer(palette = "Set2") +
-  geom_hline(yintercept=c(1000, 2000), linetype="dotted") +
-  theme_bw(base_size = 12, base_family = "") +
-  theme(
-    legend.position="right",
-    panel.grid = element_blank(),
-    axis.text.x = element_blank(),
-    axis.ticks.x=element_blank(),
-    axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm"))
-  )
-
-
-# lollipop chart
-ggplot(df, aes(x = reorder(scientific_name, maxdepth_m), y = maxdepth_m)) +
-  geom_segment(
-    aes(x = reorder(scientific_name, maxdepth_m), xend = reorder(scientific_name, maxdepth_m), y = 0, yend = maxdepth_m), 
-    color = "lightgray", size = 1) + 
-  geom_point(aes(colour = group_code), size = 2) +
-  #geom_point(shape = 21, colour = "black", fill = group_code, size = 4, stroke = 0.5) +
-  #geom_point(aes(fill = group_code), size = 3, shape=21) +
-  scale_y_continuous(trans = 'reverse', limits = c(4000, 0), expand = c(0, 0)) +
-  labs(y = "Maximum dive depth (m)", x = "") +
-  scale_color_brewer(palette = "Set2") +
-  geom_hline(yintercept=c(1000, 2000), linetype="dotted") +
-  theme_bw(base_size = 12, base_family = "") +
-  theme(
-    legend.position="right",
-    panel.grid = element_blank(),
-    axis.text.x = element_blank(),
-    axis.ticks.x=element_blank(),
-    axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm"))
-  )
-
-
-ggdotchart(df2, x = "scientific_name", y = "maxdepth_m",
-           color = "group_code",                         # Color by groups
-           #palette = c("#00AFBB", "#E7B800", "#FC4E07"), # Custom color palette
-           #sorting = "group_code",                        # Sort value in descending order
-           add = "segments",                             # Add segments from y = 0 to dots
-           ggtheme = theme_pubr()                        # ggplot2 theme
-)
-
-
-
-# https://www.r-bloggers.com/bar-plots-and-modern-alternatives/
-# https://www.datanovia.com/en/blog/ggplot-examples-best-reference/

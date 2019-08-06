@@ -13,7 +13,7 @@
 # Hoscheid et al. 2014. Why we mind sea turtles' underwater business: A review on the study of diving behavior.
 # Ponganis et al. 2015. Diving Physiology of Marine Mammals and Seabirds. Cambridge
 # Any reference for sharks a fishes?
-# Burger 2001. Diving depths of sharwaters
+# Burger 2001. Diving depths of shearwaters
 # Taylor 2008. Maximum dive depths of eight New Zeland Procellariiformes, including Pterodroma species
 
 
@@ -143,10 +143,32 @@ hos <- select(hos, -species, -source, -max_depth_m)
 df <- merge(df, hos, by="taxonid", all.x=TRUE)
 
 
-## Export table as temporary file
-write.csv(df, paste(temp_dir, "spp_list_depth.csv", sep="/"), row.names=FALSE)
-df <- read.csv(paste(temp_dir, "spp_list_depth.csv", sep="/"))
-df <- read.csv(paste("C:/Temp", "spp_list_depth.csv", sep="/"))
+#--------------------------------------------------------------------
+# 4. Integrate Ponganis et al. 2015. 
+#--------------------------------------------------------------------
+# Ponganis et al. 2015. Diving Physiology of Marine Mammals and Seabirds. Cambridge
+
+# import data
+# Data on dive max depth (m) from Tables 1.1 to 1.10 have been digitized into a CSV file
+# Species names corrected for: Eumetopias jubatus, Megaptera novaeangliae, Procellaria aequinoctialis
+# Arctocephalus pusillus subspecies have been merged at species level, selecting max depth.
+pon_file <- paste(raw_dir, "species_lists/ponganis_2015.csv", sep="/")
+pon <- read.csv(pon_file)
+
+# filter species without diving depth
+pon <- filter(pon, !is.na(depth_max_m))
+
+# rename depth variable
+pon$pon_max_depth_m <- pon$depth_max_m
+
+# get taxon id
+pon$taxonid <- getTaxonId(as.character(pon$species), key)
+pon <- select(pon, -species, -group, -depth_max_m)
+
+# join with species list
+df <- merge(df, pon, by="taxonid", all.x=TRUE)
+
+
 
 
 #--------------------------------------------------------------------
@@ -154,6 +176,10 @@ df <- read.csv(paste("C:/Temp", "spp_list_depth.csv", sep="/"))
 #--------------------------------------------------------------------
 
 
+## Export table as temporary file
+write.csv(df, paste(temp_dir, "spp_list_depth.csv", sep="/"), row.names=FALSE)
+df <- read.csv(paste(temp_dir, "spp_list_depth.csv", sep="/"))
+#df <- read.csv(paste("C:/Temp", "spp_list_depth.csv", sep="/"))
 
 
 #--------------------------------------------------------------------
@@ -161,13 +187,10 @@ df <- read.csv(paste("C:/Temp", "spp_list_depth.csv", sep="/"))
 #--------------------------------------------------------------------
 
 
-## Get max value among the different databases
-# df$depth_m <- pmax(df$depth_lower, df$DepthRangeComDeep, df$pen_depth_m, df$hal_depth_m, na.rm=TRUE)
-# df$maxdepth_m <- pmax(df$depth_lower, df$pen_maxdepth_m, df$DepthRangeDeep, df$hal_maxdepth_m, df$hos_max_depth_m, na.rm=TRUE)
-
-
-## select by priority (Hoscheid > Pen > Hal > Sealifebase > IUCN)
-## higher priority are incorporated later and overwrite previous data
+# select by priority (Hoscheid > Pen > Hal > IUCN > Sealifebase)
+# Some species are shared between sources. We define a priority for selecting
+# records based on publication year and specificity of the source.
+# higher priority are incorporated later and overwrite previous data
 
 # For max depth
 df$maxdepth_m <- NA
@@ -183,33 +206,28 @@ sel <- which(!is.na(df$depth_lower))
 df$maxdepth_m[sel] <- df$depth_lower[sel]
 df$maxdepth_source[sel] <- "IUCN"
 
-# Halsey
+# Halsey et al. 2006
 sel <- which(!is.na(df$hal_maxdepth_m))
 df$maxdepth_m[sel] <- df$hal_maxdepth_m[sel]
 df$maxdepth_source[sel] <- "Halsey et al. 2006"
 
-# Penguiness book
+
+# Ponganis (2015)
+sel <- which(!is.na(df$pon_max_depth_m))
+df$maxdepth_m[sel] <- df$pon_max_depth_m[sel]
+df$maxdepth_source[sel] <- "Ponganis 2015"
+
+
+# Penguiness book (2018)
 sel <- which(!is.na(df$pen_maxdepth_m))
 df$maxdepth_m[sel] <- df$pen_maxdepth_m[sel]
 df$maxdepth_source[sel] <- "Penguiness book"
 
-# Hoscheid et al. 2014
+
+# Hoscheid (2014)
 sel <- which(!is.na(df$hos_max_depth_m))
 df$maxdepth_m[sel] <- df$hos_max_depth_m[sel]
 df$maxdepth_source[sel] <- "Hoscheid et al. 2014"
-
-
-
-
-
-
-## Correlation between depth sources
-# plot(match$pen_depth_m, match$hal_depth_m)
-# plot(match$pen_maxdepth_m, match$hal_maxdepth_m)
-# plot(match$depth_lower_m, match$pen_depth_m)
-# plot(match$depth_lower_m, match$hal_depth_m)
-# 
-
 
 
 
@@ -269,7 +287,7 @@ p
 
 
 # Save as png file
-p_png = paste0(fig_dir, "/dive/violin_maxdepth.png")
+p_png = paste0(fig_dir, "/dive/violin_maxdepth2.png")
 #ggsave(p_png, p, width=10, height=8, units="cm", dpi=300)
 ggsave(p_png, p, width=12, height=10, units="cm", dpi=300)
 

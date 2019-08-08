@@ -17,11 +17,6 @@
 # Taylor 2008. Maximum dive depths of eight New Zeland Procellariiformes, including Pterodroma species
 
 
-# Manually update
-# Ponganis:
-# Eubalaena glacialis: 120 m
-
-
 
 library(dplyr)
 source("R/utils.R")
@@ -170,29 +165,16 @@ df <- merge(df, pon, by="taxonid", all.x=TRUE)
 
 
 
-
-#--------------------------------------------------------------------
-# 4. Search species without data
-#--------------------------------------------------------------------
-
-
-## Export table as temporary file
-write.csv(df, paste(temp_dir, "spp_list_depth.csv", sep="/"), row.names=FALSE)
-df <- read.csv(paste(temp_dir, "spp_list_depth.csv", sep="/"))
-#df <- read.csv(paste("C:/Temp", "spp_list_depth.csv", sep="/"))
-
-
 #--------------------------------------------------------------------
 # 5. Combine data
 #--------------------------------------------------------------------
 
-
-# select by priority (Hoscheid > Pen > Hal > IUCN > Sealifebase)
 # Some species are shared between sources. We define a priority for selecting
-# records based on publication year and specificity of the source.
-# higher priority are incorporated later and overwrite previous data
+# records based on publication year (eg. Penguiness book is the most recent database)
+# and specificity of the source (eg. Hoscheid 2014 is focused on marine turtles).
+# select by priority (Hoscheid > Penguiness book > Ponganis 2015 > Halsey 2006 > IUCN > Sealifebase)
 
-# For max depth
+# Create max depth and max depth source
 df$maxdepth_m <- NA
 df$maxdepth_source <- NA
 
@@ -211,23 +193,38 @@ sel <- which(!is.na(df$hal_maxdepth_m))
 df$maxdepth_m[sel] <- df$hal_maxdepth_m[sel]
 df$maxdepth_source[sel] <- "Halsey et al. 2006"
 
-
 # Ponganis (2015)
 sel <- which(!is.na(df$pon_max_depth_m))
 df$maxdepth_m[sel] <- df$pon_max_depth_m[sel]
 df$maxdepth_source[sel] <- "Ponganis 2015"
-
 
 # Penguiness book (2018)
 sel <- which(!is.na(df$pen_maxdepth_m))
 df$maxdepth_m[sel] <- df$pen_maxdepth_m[sel]
 df$maxdepth_source[sel] <- "Penguiness book"
 
-
 # Hoscheid (2014)
 sel <- which(!is.na(df$hos_max_depth_m))
 df$maxdepth_m[sel] <- df$hos_max_depth_m[sel]
 df$maxdepth_source[sel] <- "Hoscheid et al. 2014"
+
+
+
+#--------------------------------------------------------------------
+# 6. Export table
+#--------------------------------------------------------------------
+
+## Export table as temporary file
+write.csv(df, paste(temp_dir, "spp_list_depth.csv", sep="/"), row.names=FALSE)
+df <- read.csv(paste(temp_dir, "spp_list_depth.csv", sep="/"))
+
+
+
+
+
+#--------------------------------------------------------------------
+# 6. Summarize data
+#--------------------------------------------------------------------
 
 
 
@@ -254,40 +251,12 @@ for (i in 1:length(depth_levels)){
   prop_depth <- c(prop_depth, prop)
 }
 depth_df <- data.frame(depth_levels, prop_depth)
-plot(depth_levels, prop_depth, type="l")
+plot(prop_depth*100, depth_levels, type="l", xlab="Proportion of species (%, n = 122)", ylab = "Maximum dive depth (m)", ylim = c(4000, 0))
+
 
 # proportion at 2000m
 # 8 species (6.5%)
 prop2000 <- (sum(df$maxdepth_m > 2000)/total_species)*100
 prop1000 <- (sum(df$maxdepth_m > 1000)/total_species)*100
 
-
-##
-library(ggplot2)
-
-groups_order <- as.character(depth_sum$group_code[order(depth_sum$max_maxdepth)])
-
-#### Figure: violin plot
-
-p <- ggplot(df, aes(factor(group_code), maxdepth_m)) +
-  geom_violin(aes(fill = group_code, colour = group_code), trim = TRUE, scale="width", alpha = I(1 / 3)) +
-  geom_jitter(aes(color = group_code), height = 0, width = 0.1, alpha = I(1 / 1.5)) + 
-  labs(y = "Maximum dive depth (m)", x = "") +
-  scale_y_continuous(trans = 'reverse', limits = c(4000, 0), expand = c(0, 0)) +
-  geom_hline(yintercept=c(2000), linetype="dotted") +
-  scale_x_discrete(limits=groups_order) +
-  theme_bw(base_size = 12, base_family = "") +
-  theme(
-    legend.position =  "none",
-    panel.grid = element_blank(),
-    axis.text.y = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm")), 
-    axis.text.x = element_text(margin=unit(c(0.3,0.3,0.3,0.3), "cm"))
-  )
-p
-
-
-# Save as png file
-p_png = paste0(fig_dir, "/dive/violin_maxdepth2.png")
-#ggsave(p_png, p, width=10, height=8, units="cm", dpi=300)
-ggsave(p_png, p, width=12, height=10, units="cm", dpi=300)
 

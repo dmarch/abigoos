@@ -10,6 +10,7 @@ source("R/data_paths.R")
 ## Import data
 spplist <- read.csv(spp_list_group)  # Import species list
 eoo_overlap <- read.csv(paste(overlap_dir, "eoo_overlap.csv", sep="/"))  # overlap metrics for eoo
+dive_depth <- read.csv(paste(temp_dir, "spp_list_depth.csv", sep="/"))
 
 
 ## Create a reference column with source references
@@ -50,6 +51,11 @@ eoo <- eoo_overlap %>%
 spplist <- merge(spplist, eoo, by="taxonid")
 
 
+## Incorporate maximum dive depth and source
+dive_depth <- dplyr::select(dive_depth, taxonid, maxdepth_m, maxdepth_source)
+spplist <- merge(spplist, dive_depth, by="taxonid")
+
+
 ## Select columns to export
 spplist <- spplist %>%
   dplyr::select(
@@ -57,12 +63,13 @@ spplist <- spplist %>%
     scientific_name,
     taxonid,
     category,
-    depth_lower,
+    maxdepth_m,
     Length,
     range_km2,
     shp_type,
-    reference
-  )
+    reference,
+    maxdepth_source
+    )
 
 
 ## Change name of EOO sources
@@ -77,7 +84,6 @@ spplist$Length <- round(spplist$Length/100,2)  # cm to m
 
 
 ## Rename variables
-names(spplist)[names(spplist)=="depth_lower"] <- "depth_lower_m"
 names(spplist)[names(spplist)=="Length"] <- "length_m"
 names(spplist)[names(spplist)=="shp_type"] <- "eoo_source"
 
@@ -90,12 +96,12 @@ spplist <- arrange(spplist, group_name, scientific_name)
 # scientific_name = "scientific name of species",
 # taxonid = "taxonomic ID from IUCN API",
 # category = "IUCN category",
-# depth_lower_m = "lower depth, in meters. Automatically extracted extracted from IUCN API",
+# maxdepth_m = "maximum dive depth, in meters",
 # length_m= "body length, in meters. Automatically extracted from FishBase (http://fishbase.org/search.php) and SeaLifeBase (https://www.sealifebase.ca/).",
 # extent_km2 ="species range, in km2",
 # eoo_source = "source of EOO maps used in this study",
 # reference = "reference used to list species"
-
+# maxdepth_source = "reference used to extract max dive depth"
 
 ## Export table (CSV format)
 outfile <- paste(tbl_dir, "tbl_species_list.csv", sep="/")

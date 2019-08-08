@@ -12,11 +12,21 @@ match <- read.csv(spp_list_group)  # Species list
 ## Import overlap indices for telemetry
 eoo_overlap <- read.csv(paste(overlap_dir, "eoo_overlap.csv", sep="/"))  # overlap metrics for telemetry
 
+## Import max dive depth
+dive_depth <- read.csv(paste(temp_dir, "spp_list_depth.csv", sep="/"))
+
+
 ## Filter EOO overlap results at global level
 eoo_overlap <- filter(eoo_overlap, region == "GO")
 
 ## Combine species list and overlap results
 spp <- merge(match, eoo_overlap, by="taxonid")
+
+## Combine species list and dive results
+dive_depth <- dplyr::select(dive_depth, taxonid, maxdepth_m, maxdepth_source)
+spp <- merge(spp, dive_depth, by="taxonid")
+
+
 
 ## Summaryze data
 df <- spp %>%
@@ -36,6 +46,13 @@ df <- spp %>%
     meanDepth = mean(depth_lower, na.rm=TRUE),
     sdDepth = sd(depth_lower, na.rm=TRUE),
     nDepth = sum(!is.na(depth_lower)),
+    # max dive depth
+    meanDepth = mean(maxdepth_m, na.rm=TRUE),
+    sdDepth = sd(maxdepth_m, na.rm=TRUE),
+    medDepth = median(maxdepth_m, na.rm=TRUE),
+    minDepth = min(maxdepth_m, na.rm=TRUE),
+    maxDepth = max(maxdepth_m, na.rm=TRUE),
+    nDepth = sum(!is.na(maxdepth_m)),
     ## overlap coldspots
     meanOVcoldspot = mean(ov_coldspot, na.rm=TRUE),
     sdOVcoldspot = sd(ov_coldspot, na.rm=TRUE),

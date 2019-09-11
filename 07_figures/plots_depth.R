@@ -29,12 +29,13 @@ depth_sum <- df %>%
 groups_order <- as.character(depth_sum$group_code[order(depth_sum$max_maxdepth)])
 
 ## Figure: violin plot
+set.seed(123)
 p <- ggplot(df, aes(factor(group_code), maxdepth_m)) +
   geom_violin(aes(fill = group_code, colour = group_code), trim = TRUE, scale="width", alpha = I(1 / 3)) +
   geom_jitter(aes(color = group_code), height = 0, width = 0.1, alpha = I(1 / 1.5)) + 
   labs(y = "Maximum dive depth (m)", x = "") +
-  scale_y_continuous(trans = 'reverse', limits = c(4000, 0), expand = c(0, 0)) +
-  geom_hline(yintercept=c(2000), linetype="dotted") +
+  scale_y_continuous(trans = 'reverse', limits = c(4500, 0), expand = c(0, 0)) +
+  #geom_hline(yintercept=c(2000), linetype="dotted") +
   scale_x_discrete(limits=groups_order) +
   theme_bw(base_size = 12, base_family = "") +
   theme(
@@ -46,5 +47,5 @@ p <- ggplot(df, aes(factor(group_code), maxdepth_m)) +
 p
 
 # Save as png file
-p_png = paste0(fig_dir, "/dive/violin_maxdepth.png")
+p_png = paste0(fig_dir, "/dive/violin_maxdepth_noArgo.png")
 ggsave(p_png, p, width=12, height=10, units="cm", dpi=300)

@@ -141,6 +141,7 @@ p <- ggplot(dfm, aes(x = year, y = value, fill = variable)) +
   labs(x = "Year", y = ylab) +
   theme_bw() + 
   theme(legend.position = c(0.8, 0.2), legend.title=element_blank(),
+        plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm"),
       legend.background = element_rect(color = "black", fill = "white", size = 0.2, linetype = "solid"),
       panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 

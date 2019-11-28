@@ -3,7 +3,9 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2638123.svg)](https://doi.org/10.5281/zenodo.2638123)
 
 
-This repository provides the R code that accompanies the article "Towards the integration of animal-borne instruments into global ocean observing systems"
+This repository provides the R code that accompanies the article:
+
+March, D, Boehme, L, Tintoré, J, Vélez‐Belchi, PJ, Godley, BJ. Towards the integration of animal‐borne instruments into global ocean observing systems. Glob Change Biol. 2019; 00: 1– 11. [https://doi.org/10.1111/gcb.14902](https://doi.org/10.1111/gcb.14902)
 
 
 ### Requirements
@@ -66,7 +68,7 @@ Licensed under the [MIT license](https://github.com/dmarch/abigoos/blob/master/L
 
 ## Citation
 
-David March, Lars Boehme, Joaquín Tintoré, Pedro Joaquín Vélez-Belchi, Brendan J Godley. (in press) Towards the integration of animal-borne instruments into global ocean observing systems. Global Change Biology.
+March, D, Boehme, L, Tintoré, J, Vélez‐Belchi, PJ, Godley, BJ. Towards the integration of animal‐borne instruments into global ocean observing systems. Glob Change Biol. 2019; 00: 1– 11. [https://doi.org/10.1111/gcb.14902](https://doi.org/10.1111/gcb.14902)
 
 
 ## Acknowledgements
